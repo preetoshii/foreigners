@@ -288,6 +288,8 @@ assets/
 
 ## Launchpad Milestones
 
+> ⚠️ **WORK IN PROGRESS** — These milestones are a rough draft. Parth and Preet need to review and refine these together before building begins. The breakdown, ordering, and scope of each milestone may change.
+
 Each milestone is a vertical slice — small but complete, testable. We're growing a cupcake into a cake, not building incomplete layers.
 
 ### Milestone 1: The skeleton speaks
