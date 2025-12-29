@@ -26,12 +26,12 @@ The 6 milestones in the spec are a rough draft. Review them together:
 - Is anything unnecessary for first life?
 
 **The milestones:**
-1. The skeleton speaks (static hello world)
-2. The script drives the scene (parser)
-3. Assets are discovered, not hardcoded
-4. Characters talk to each other (two-person shot)
-5. They have voices (gibberish audio)
-6. It plays itself (first life)
+1. One character renders on screen
+2. Script file controls what renders
+3. Assets load from folders automatically
+4. Two characters in a conversation shot
+5. Gibberish audio plays for each line
+6. Full automatic playback — FIRST LIFE
 
 ### 3. Test Assets
 Before building, you need placeholder assets:

@@ -292,81 +292,81 @@ assets/
 
 Each milestone is a vertical slice — small but complete, testable. We're growing a cupcake into a cake, not building incomplete layers.
 
-### Milestone 1: The skeleton speaks
+### Milestone 1: One character renders on screen
 
-**Outcome:** A static "hello world" renders in the browser — one character on a background with a subtitle.
+**Outcome:** Open browser, see a character video playing on a background with subtitle text.
 
 - Project initialized (TypeScript, Node, basic dev server)
-- Placeholder assets in place (one character video, one background, one audio clip)
-- Canvas renders: background image + character video (playing) + hardcoded subtitle text
-- No parsing yet — everything hardcoded
+- Placeholder assets in place (one character video, one background)
+- Canvas renders: background image + character video (looping) + hardcoded subtitle
+- Everything hardcoded — no parsing yet
 
-**Done when:** Open browser, see Mario on a background saying "Hello World"
+**Done when:** Browser shows Mario on the Rainbow Cafe background with "Hello World" subtitle
 
 ---
 
-### Milestone 2: The script drives the scene
+### Milestone 2: Script file controls what renders
 
-**Outcome:** A `.foreigners` file controls what appears on screen.
+**Outcome:** Edit a `.foreigners` file, refresh browser, see the changes.
 
 - FSL parser built (hand-written, handles MVP syntax)
 - Server parses script on startup, serves to browser
 - Browser reads parsed script, renders first line
-- Manual "next line" button advances through script
-- Character + emotion changes based on script
+- Manual "next line" button to step through
+- Character and emotion change based on script content
 
-**Done when:** Edit the script, refresh, see different content
+**Done when:** Change a line in the script, refresh, see the new content
 
 ---
 
-### Milestone 3: Assets are discovered, not hardcoded
+### Milestone 3: Assets load from folders automatically
 
-**Outcome:** Drop files in folders, system finds them.
+**Outcome:** Drop a new emotion folder with video/audio, system finds and uses it.
 
 - Server scans asset folders on startup
-- Builds inventory: which characters exist, which emotions each has, which audio clips
-- Parser validates script against inventory (warns if emotion doesn't exist)
-- Browser uses discovered assets
+- Builds inventory: which characters exist, what emotions each has, what audio clips
+- Browser loads assets based on discovered inventory
+- Parser warns if script references something that doesn't exist
 
-**Done when:** Add a new emotion folder with video/audio, it appears as an option
-
----
-
-### Milestone 4: Characters talk to each other
-
-**Outcome:** Two characters, conversation shot, speaker switches.
-
-- Canvas renders two characters (speaker in focus, non-speaker blurred)
-- When speaker changes, visuals update
-- Subtitle shows current line
-- Still manual advancement
-
-**Done when:** Click through a two-person dialogue, see speaker swap back and forth
+**Done when:** Add a new emotion folder, restart server, new emotion is available
 
 ---
 
-### Milestone 5: They have voices
+### Milestone 4: Two characters in a conversation shot
 
-**Outcome:** Gibberish audio plays for each line.
+**Outcome:** See two characters on screen, speaker in focus, non-speaker blurred.
 
-- Audio clips loaded for each character's emotions
-- Duration estimated from text length
-- Clips selected and sequenced to fill duration
+- Canvas renders two characters positioned appropriately
+- Speaker is clear/prominent, non-speaker is blurred/background
+- When speaker changes (click next), visuals swap
+- Subtitle shows current speaker's line
+
+**Done when:** Click through a dialogue between Mario and Luigi, see them swap focus
+
+---
+
+### Milestone 5: Gibberish audio plays for each line
+
+**Outcome:** Each line has audio that plays while the subtitle is shown.
+
+- Audio clips load for each character's emotions
+- Duration calculated from text length
+- Clips selected and sequenced to fill the duration
 - Small gaps between clips for natural rhythm
 
-**Done when:** Each line has gibberish audio that roughly matches the subtitle length
+**Done when:** Click next, hear gibberish that lasts roughly as long as the subtitle
 
 ---
 
-### Milestone 6: It plays itself (First Life)
+### Milestone 6: Full automatic playback — FIRST LIFE
 
-**Outcome:** Press play, watch the whole scene unfold automatically.
+**Outcome:** Press play, watch the entire scene unfold with no interaction.
 
-- Automatic advancement: line completes → next line starts
-- Timing synced: video emotion, audio playback, subtitle display
-- Hot reload: save script, browser updates
+- Automatic advancement: when audio finishes, next line starts
+- Timing synced: video, audio, and subtitles all coordinated
+- Hot reload: save script, browser updates automatically
 
-**Done when:** Write a script, save it, watch it play in the browser — **THIS IS FIRST LIFE**
+**Done when:** Write a script, save it, press play, watch the whole thing — **THIS IS FIRST LIFE**
 
 ---
 
