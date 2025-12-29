@@ -1,0 +1,158 @@
+# ============================================
+# FOREIGNERS - Episode 5: "The Heist"
+# ============================================
+# This script imagines the full future syntax —
+# MVP features + all planned extensions working together.
+
+seed: 77777
+
+[music: tension-building]
+
+# --------------------------------------------
+# Cold Open
+# --------------------------------------------
+
+[title-card]
+text: "DOWNTOWN - 11:47 PM"
+duration: 2s
+background: dark
+
+@downtown-alley
+
+[sfx: rain-ambient]
+[camera: slow-pan]
+
+luigi: [[nervous]] [[side]] Are you sure about this, Mario?
+mario: [[determined]] [[front]] I've never been more sure of anything.
+luigi: [[anxious]] ...
+mario: [[confident]] [[close-up]] Tonight, we take back what's ours.
+
+[pause: 1.5s]
+
+[transition]
+jingle: dramatic-sting
+style: cut
+
+# --------------------------------------------
+# SCENE 1: The Vault Exterior
+# --------------------------------------------
+
+[title-card]
+text: "THE VAULT"
+duration: 1.5s
+
+@vault-exterior
+
+[music: heist-theme]
+
+mario: [[focused]] [[side]] Okay. You remember the plan?
+luigi: [[nervous]] [[front]] Yeah. Yeah, I think so.
+mario: [[stern]] You THINK so?
+luigi: [[defensive]] [[angry]] I KNOW so! Jeez.
+mario: [[satisfied]] ...
+mario: [[calm]] Good. Let's move.
+
+[action] mario signals to move forward
+[action] luigi follows hesitantly
+
+[sfx: footsteps-concrete]
+
+# --------------------------------------------
+# SCENE 2: Inside the Vault
+# --------------------------------------------
+
+@vault-interior
+
+[music: stop]
+[sfx: quiet-hum]
+
+[camera: wide]
+
+luigi: [[amazed]] [[front]] Woah... look at this place.
+mario: [[focused]] Stay on mission.
+luigi: [[distracted]] But Mario, look at all this—
+mario: [[angry:intense]] [[close-up]] LUIGI. Focus.
+
+[pause: 2s]
+
+luigi: [[chastened]] ...
+luigi: [[serious]] Right. Sorry. I'm focused.
+
+[camera: zoom-in]
+
+mario: [[determined]] [[side]] The case is in the back. 
+mario: [[cautious]] Watch for lasers.
+luigi: [[nervous]] [[scared]] L-lasers?!
+
+[sfx: laser-grid-hum]
+
+mario: [[calm]] Just step where I step.
+
+[action] mario carefully navigates the laser grid
+[action] luigi follows, sweating
+
+# --------------------------------------------
+# SCENE 3: The Prize
+# --------------------------------------------
+
+[camera: dramatic-zoom]
+
+mario: [[triumphant]] [[front]] There it is.
+luigi: [[awestruck]] ...
+luigi: [[whispered]] [[happy]] We actually made it.
+
+[sfx: case-unlatch]
+
+mario: [[reverent]] [[close-up]] Our grandmother's recipe book.
+mario: [[emotional]] [[touched]] Finally back where it belongs.
+luigi: [[tearful]] [[happy]] Nonna would be so proud.
+
+[music: emotional-swell]
+
+[pause: 3s]
+
+mario: [[warm]] [[happy]] Let's go home, brother.
+luigi: [[content]] [[happy]] Yeah. Let's go home.
+
+[transition]
+style: fade-to-black
+duration: 2s
+
+# --------------------------------------------
+# Epilogue
+# --------------------------------------------
+
+[title-card]
+text: "THREE DAYS LATER"
+duration: 2s
+background: warm
+
+@rainbow-cafe
+
+[music: cozy-afternoon]
+[sfx: cafe-ambience]
+
+mario: [[happy]] [[front]] You know, Luigi...
+luigi: [[content]] [[front]] Hmm?
+mario: [[nostalgic]] [[peaceful]] Nonna's minestrone really is the best.
+luigi: [[happy]] The BEST.
+
+# They clink their soup bowls together
+[sfx: ceramic-clink]
+
+mario: [[joyful]] ...
+luigi: [[joyful]] ...
+
+[narrator] And so, the brothers enjoyed what they had risked everything to reclaim.
+[narrator] Not gold. Not jewels. Just a little book full of memories.
+
+[music: fade-out]
+
+[title-card]
+text: "THE END"
+duration: 3s
+
+# ============================================
+# END OF EPISODE
+# ============================================
+

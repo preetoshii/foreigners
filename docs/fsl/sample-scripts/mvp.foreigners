@@ -1,0 +1,55 @@
+# ============================================
+# FOREIGNERS - Episode 1: "The Bridge Incident"
+# ============================================
+# This script uses only MVP syntax.
+
+seed: 42069
+
+# --------------------------------------------
+# SCENE 1: Rainbow Cafe
+# --------------------------------------------
+
+@rainbow-cafe
+
+mario: [[happy]] Hey Luigi! Good to see you, brother.
+luigi: [[neutral]] Hey. Yeah. Good to see you too.
+mario: [[curious]] You okay? You seem a little off today.
+luigi: [[sad]] ...
+luigi: [[sad]] I've just been thinking about things, you know?
+mario: [[concerned]] What kind of things?
+luigi: [[sad]] The bridge. [[angry]] That stupid bridge.
+mario: [[confused]] Wait, what happened at the bridge?
+
+# --------------------------------------------
+# SCENE 2: The Bridge
+# --------------------------------------------
+
+@bridge
+
+luigi: [[angry]] This is where it happened, Mario.
+luigi: [[angry]] Right here. [[sad]] This exact spot.
+mario: [[neutral]] ...
+mario: [[sympathetic]] I had no idea, Luigi. I'm so sorry.
+luigi: [[bitter]] Yeah well. [[neutral]] It is what it is.
+
+# Long pause as they look out at the view
+mario: [[peaceful]] ...
+luigi: [[melancholy]] ...
+
+mario: [[hopeful]] Hey. Want to get some coffee? My treat.
+luigi: [[grateful]] [[happy]] Yeah. Yeah, I'd like that.
+
+# --------------------------------------------
+# SCENE 3: Back to Rainbow Cafe
+# --------------------------------------------
+
+@rainbow-cafe
+
+mario: [[happy]] Two espressos, please!
+luigi: [[content]] You know what, Mario?
+mario: [[curious]] What's that?
+luigi: [[happy]] You're a good brother.
+mario: [[touched]] [[happy]] Thanks, Luigi. So are you.
+
+# End of episode.
+
