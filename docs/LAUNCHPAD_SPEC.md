@@ -85,12 +85,12 @@ The system's limitations — the looping gibberish, the static poses, the simple
 | First Life | Future Ideas |
 |------------|--------------|
 | 2 characters, 3 states each, front-34 + back-34 angles | Additional angles (full front, full side, full back, etc.) |
-| 2 locations with left/right perspective backgrounds | Wide shot backgrounds, ambient audio, acoustic profiles |
+| 2 locations with left/right perspective backgrounds | Two-shot backgrounds, ambient audio, acoustic profiles |
 | FSL scripting language (characters, states, locations) | Extended FSL syntax (title cards, transitions, `[camera:]`) |
 | Hand-written parser | — |
 | Canvas-based preview in browser | Export to video file |
 | Single location per script (architecture supports multi-location) | Multi-location scripts with exposition shots + jingles |
-| Conversation shot only (speaker/non-speaker, auto-switches) | Multiple shot types (wide, close-up, etc.) |
+| OTS (over-the-shoulder) shot only, auto-switches on speaker change | Multiple shot types (two-shot, single, etc.) |
 | Gibberish audio timed to text length | Variant selection, intensity modifiers |
 | Manual refresh to see changes | VS Code extension (syntax highlighting, autocomplete) |
 
@@ -249,50 +249,87 @@ The engine automatically chooses the correct perspective based on who's speaking
 
 **Why this matters:**
 
-In a traditional over-the-shoulder shot, when the speaker changes, *everything changes*:
+In an over-the-shoulder shot, when the speaker changes, *everything changes*:
 - The speaker shows their front-34 angle (facing camera)
 - The listener shows their back-34 angle (facing away, often blurred)
 - The background perspective flips (showing what's behind the new speaker)
 
 If you had to manually specify all of this in the script, it would be tedious and error-prone. Instead, you specify **what kind of shot**, and the engine handles the composition.
 
-**First life: Conversation shot**
-
-The only shot type for first life. Here's how it works:
-
-1. **Speaker** renders in focus with front-34 angle
-2. **Non-speaker** renders blurred with back-34 angle
-3. **Background** shows the perspective from behind the speaker
-4. When speaker changes, everything automatically swaps
-
-No FSL syntax needed — conversation shot is the default and only option for first life.
-
 **How shot types are implemented:**
 
 Shot types are **baked into the engine code**, not configured via text files. Each shot type is code that knows:
-- Which character angles to use (speaker gets front-34, listener gets back-34)
-- Which background perspective to use (based on who's speaking)
+- Which character angles to use
+- Which background perspective to use
 - How to position and composite everything
 - What blur/focus effects to apply
 
-**Future shot types:**
-- **Wide shot** — Both characters visible, uses a dedicated wide background
-- **Close-up** — Just the speaker, zoomed in
-- **Others** — As creative needs emerge
+---
+
+#### Shot Type Reference
+
+**`ots` — Over-the-Shoulder** *(First Life)*
+
+The classic dialogue shot. Speaker in focus, non-speaker visible but secondary.
+
+| Element | Specification |
+|---------|---------------|
+| **Speaker** | Front-34 angle, in focus, positioned on opposite side from their "seat" |
+| **Non-speaker** | Back-34 angle, blurred (heavy blur), positioned in foreground corner |
+| **Background** | Perspective from speaker's side (left.jpg if speaker is camera-left) |
+| **On speaker change** | Everything swaps — angles flip, background flips, positions swap |
+
+*This is the only shot type for first life. No FSL syntax needed — it's the default.*
+
+---
+
+**`two-shot` — Two-Shot / Profile** *(Future)*
+
+Both characters visible in frame, typically in profile facing each other.
+
+| Element | Specification |
+|---------|---------------|
+| **Left character** | Side/profile angle, positioned left of center |
+| **Right character** | Side/profile angle, positioned right of center |
+| **Background** | Wide background (backgrounds/wide.webm) |
+| **Focus** | Both characters in focus, no blur |
+| **On speaker change** | Characters stay in place, subtitle indicates speaker |
+
+*Requires: side angle assets for characters, wide background for location.*
+
+---
+
+**`single` — Single Shot** *(Future)*
+
+Just one character fills the frame. Intimate, dramatic.
+
+| Element | Specification |
+|---------|---------------|
+| **Speaker** | Front-34 angle (or front angle), scaled up / zoomed in, centered |
+| **Non-speaker** | Not visible |
+| **Background** | Speaker's perspective background, possibly with zoom/crop |
+| **Focus** | Full focus on speaker |
+
+*Requires: No new assets — uses existing front-34 angles, just composed differently.*
+
+---
 
 **Future FSL syntax:**
 ```fsl
-[camera: conversation]
+[camera: ots]
 mario: [[happy]] Hey, what's up?
 
-[camera: wide]
+[camera: two-shot]
 mario: [[frustrated]] I hate capitalism.
 luigi: [[sad]] Yeah, I'm with you there.
+
+[camera: single]
+mario: [[emotional]] I just... I can't do this anymore.
 ```
 
 **Missing assets = clear errors:**
 
-If a shot type requires an asset that doesn't exist (e.g., wide shot needs a wide background), the system errors clearly: "Wide shot requires `backgrounds/wide.webm` for location 'rainbow-cafe'." No silent fallbacks that produce broken visuals.
+If a shot type requires an asset that doesn't exist (e.g., two-shot needs a wide background), the system errors clearly: "Two-shot requires `backgrounds/wide.webm` for location 'rainbow-cafe'." No silent fallbacks that produce broken visuals.
 
 ### The Script (FSL)
 
@@ -424,16 +461,17 @@ Each milestone is a vertical slice — small but complete, testable. We're growi
 
 ---
 
-### Milestone 4: Two characters in a conversation shot
+### Milestone 4: Two characters in an over-the-shoulder (OTS) shot
 
-**Outcome:** See two characters on screen, speaker in focus, non-speaker blurred.
+**Outcome:** See two characters on screen, speaker in focus, non-speaker blurred in foreground.
 
 - Canvas renders two characters positioned appropriately
-- Speaker is clear/prominent, non-speaker is blurred/background
-- When speaker changes (click next), visuals swap
+- Speaker is clear/prominent (front-34), non-speaker is blurred (back-34)
+- Background switches based on who's speaking (left/right perspectives)
+- When speaker changes (click next), everything swaps
 - Subtitle shows current speaker's line
 
-**Done when:** Click through a dialogue between Mario and Luigi, see them swap focus
+**Done when:** Click through a dialogue between Mario and Luigi, see them swap focus with backgrounds flipping
 
 ---
 
@@ -466,7 +504,7 @@ Each milestone is a vertical slice — small but complete, testable. We're growi
 
 *To be resolved through building, not planning:*
 
-1. **Conversation shot layout:** Exact positioning, scale, blur amount for speaker vs. non-speaker. Will figure out through experimentation once we have real assets.
+1. **OTS shot layout:** Exact positioning, scale, blur amount for speaker vs. non-speaker. Will figure out through experimentation once we have real assets.
 
 2. **Gibberish timing algorithm:** Exact formula for text length → audio duration. Start simple (word count × constant), refine based on how it feels.
 

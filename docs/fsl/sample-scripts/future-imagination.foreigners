@@ -20,13 +20,13 @@ background: dark
 @downtown-alley
 
 [sfx: rain-ambient]
-[camera: conversation]
+[camera: ots]
 
 luigi: [[nervous]] Are you sure about this, Mario?
 mario: [[determined]] I've never been more sure of anything.
 luigi: [[anxious]] ...
 
-[camera: close-up]
+[camera: single]
 mario: [[confident]] Tonight, we take back what's ours.
 
 [pause: 1.5s]
@@ -46,7 +46,7 @@ duration: 1.5s
 @vault-exterior
 
 [music: heist-theme]
-[camera: conversation]
+[camera: ots]
 
 mario: [[focused]] Okay. You remember the plan?
 luigi: [[nervous]] Yeah. Yeah, I think so.
@@ -69,18 +69,18 @@ mario: [[calm]] Good. Let's move.
 [music: stop]
 [sfx: quiet-hum]
 
-[camera: wide]
+[camera: two-shot]
 
 luigi: [[amazed]] Woah... look at this place.
 mario: [[focused]] Stay on mission.
 luigi: [[distracted]] But Mario, look at all this—
 
-[camera: close-up]
+[camera: single]
 mario: [[angry:intense]] LUIGI. Focus.
 
 [pause: 2s]
 
-[camera: conversation]
+[camera: ots]
 luigi: [[chastened]] ...
 luigi: [[serious]] Right. Sorry. I'm focused.
 
@@ -99,7 +99,7 @@ mario: [[calm]] Just step where I step.
 # SCENE 3: The Prize
 # --------------------------------------------
 
-[camera: wide]
+[camera: two-shot]
 
 mario: [[triumphant]] There it is.
 luigi: [[awestruck]] ...
@@ -107,11 +107,11 @@ luigi: [[happy]] We actually made it.
 
 [sfx: case-unlatch]
 
-[camera: close-up]
+[camera: single]
 mario: [[reverent]] Our grandmother's recipe book.
 mario: [[emotional]] [[touched]] Finally back where it belongs.
 
-[camera: conversation]
+[camera: ots]
 luigi: [[tearful]] [[happy]] Nonna would be so proud.
 
 [music: emotional-swell]
@@ -138,7 +138,7 @@ background: warm
 
 [music: cozy-afternoon]
 [sfx: cafe-ambience]
-[camera: conversation]
+[camera: ots]
 
 mario: [[happy]] You know, Luigi...
 luigi: [[content]] Hmm?

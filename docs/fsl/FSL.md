@@ -163,22 +163,22 @@ luigi: [[sad]] [[front]] I'm sorry...
 Shot types control how characters are composed on screen. The engine handles all the details — which angles to use, which background perspective to show, how to position everything.
 
 ```fsl
-[camera: conversation]
+[camera: ots]
 mario: [[happy]] Hey, what's up?
 luigi: [[neutral]] Not much.
 
-[camera: wide]
+[camera: two-shot]
 mario: [[frustrated]] This affects both of us.
 luigi: [[sad]] I know.
 
-[camera: close-up]
+[camera: single]
 mario: [[angry]] This is UNACCEPTABLE!
 ```
 
-**How it works:**
-- `conversation` — Speaker in focus (front-34), non-speaker blurred (back-34), background shows speaker's perspective. Auto-switches when speaker changes.
-- `wide` — Both characters visible, uses wide background.
-- `close-up` — Just the speaker, zoomed in.
+**Shot types:**
+- `ots` (over-the-shoulder) — Speaker in focus (front-34), non-speaker blurred in foreground (back-34), background shows speaker's perspective. Auto-switches when speaker changes.
+- `two-shot` — Both characters visible in profile, uses wide background.
+- `single` — Just the speaker, zoomed in.
 
 Shot types are **baked into the engine** — each one is code that knows exactly how to composite the scene. You don't control angles directly; you control the shot, and the engine figures out the rest.
 
