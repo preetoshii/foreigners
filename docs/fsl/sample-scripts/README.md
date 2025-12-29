@@ -23,13 +23,12 @@ A **vision script** that imagines the full future syntax working together. This 
 - `[title-card]` scenes with text/duration/background
 - `[transition]` with jingle and style
 - `[music:]` and `[sfx:]` audio cues
-- `[camera:]` movements (pan, zoom, wide, close-up)
+- `[shot:]` types (ots, two-shot, single)
+- `[camera:]` movements (pan, zoom, dolly) — future
 - `[action]` character movements
 - `[pause:]` explicit timing
 - `[narrator]` voiceover
-- `[[angle]]` modifiers (front, side)
 - `[[emotion:variant]]` specific variant selection
-- `[[close-up]]` shot type inline
 
 ---
 

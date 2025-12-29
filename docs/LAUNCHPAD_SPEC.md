@@ -86,7 +86,7 @@ The system's limitations — the looping gibberish, the static poses, the simple
 |------------|--------------|
 | 2 characters, 3 states each, front-34 + back-34 angles | Additional angles (full front, full side, full back, etc.) |
 | 2 locations with left/right perspective backgrounds | Two-shot backgrounds, ambient audio, acoustic profiles |
-| FSL scripting language (characters, states, locations) | Extended FSL syntax (title cards, transitions, `[camera:]`) |
+| FSL scripting language (characters, states, locations) | Extended FSL syntax (title cards, transitions, `[shot:]`) |
 | Hand-written parser | — |
 | Canvas-based preview in browser | Export to video file |
 | Single location per script (architecture supports multi-location) | Multi-location scripts with exposition shots + jingles |
@@ -316,16 +316,18 @@ Just one character fills the frame. Intimate, dramatic.
 
 **Future FSL syntax:**
 ```fsl
-[camera: ots]
+[shot: ots]
 mario: [[happy]] Hey, what's up?
 
-[camera: two-shot]
+[shot: two-shot]
 mario: [[frustrated]] I hate capitalism.
 luigi: [[sad]] Yeah, I'm with you there.
 
-[camera: single]
+[shot: single]
 mario: [[emotional]] I just... I can't do this anymore.
 ```
+
+*Note: `[shot:]` controls framing/composition. `[camera:]` is reserved for future movement commands (pan, zoom, dolly).*
 
 **Missing assets = clear errors:**
 

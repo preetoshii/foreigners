@@ -158,20 +158,20 @@ mario: [[angry]] [[side]] I can't believe you!
 luigi: [[sad]] [[front]] I'm sorry...
 ```
 
-### Camera (Shot Types)
+### Shot Types
 
 Shot types control how characters are composed on screen. The engine handles all the details — which angles to use, which background perspective to show, how to position everything.
 
 ```fsl
-[camera: ots]
+[shot: ots]
 mario: [[happy]] Hey, what's up?
 luigi: [[neutral]] Not much.
 
-[camera: two-shot]
+[shot: two-shot]
 mario: [[frustrated]] This affects both of us.
 luigi: [[sad]] I know.
 
-[camera: single]
+[shot: single]
 mario: [[angry]] This is UNACCEPTABLE!
 ```
 
@@ -181,6 +181,8 @@ mario: [[angry]] This is UNACCEPTABLE!
 - `single` — Just the speaker, zoomed in.
 
 Shot types are **baked into the engine** — each one is code that knows exactly how to composite the scene. You don't control angles directly; you control the shot, and the engine figures out the rest.
+
+*Note: `[shot:]` is for framing/composition. `[camera:]` is reserved for future movement commands (pan, zoom, dolly).*
 
 ### Specific Variants
 
@@ -222,13 +224,13 @@ mario: [[angry:crazy-looking]] I'VE HAD ENOUGH!
 | Pattern | Type | Example |
 |---------|------|---------|
 | `[[...]]` | Inline modifier | `[[happy]]`, `[[angry:intense]]` |
-| `[...]` | Block directive | `[camera: wide]`, `[music: x]`, `[title-card]` |
+| `[...]` | Block directive | `[shot: ots]`, `[music: x]`, `[title-card]` |
 | `@...` | Location | `@rainbow-cafe` |
 | `#` | Comment | `# Scene 1` |
 
 Inline modifiers flow with dialogue. Block directives are standalone moments.
 
-**Note:** Shot types use block directives (`[camera: X]`), not inline modifiers. You set the camera once and it persists until changed. The engine handles all angle and background selection automatically.
+**Note:** Shot types use block directives (`[shot: X]`), not inline modifiers. You set the shot once and it persists until changed. The engine handles all angle and background selection automatically.
 
 ---
 
