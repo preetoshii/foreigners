@@ -82,17 +82,17 @@ The system's limitations — the looping gibberish, the static poses, the simple
 
 ## Scope Definition
 
-| First Life | Future |
-|------------|--------|
-| 2 characters, 3 emotions each, front angle only | Multiple angles (side, back, 3/4) |
-| 2 locations with background images | Exposition shots, ambient audio, acoustic profiles |
-| FSL scripting language (MVP syntax) | Extended FSL syntax (title cards, transitions, etc.) |
+| First Life | Future Ideas |
+|------------|--------------|
+| 2 characters, 3 emotions each, 3/4 front + 3/4 back angles | Additional angles (full front, full side, full back, etc.) |
+| 2 locations, background image or video supported | Exposition shots, ambient audio, acoustic profiles |
+| FSL scripting language (characters, emotions, angles, locations) | Extended FSL syntax (title cards, transitions, etc.) |
 | Hand-written parser | — |
 | Canvas-based preview in browser | Export to video file |
-| Single location per script | Multi-location scripts with automatic transitions |
+| Single location per script (architecture supports multi-location) | Multi-location scripts with automatic transitions |
 | Basic conversation shot (speaker/non-speaker) | Multiple shot types (close-up, wide, etc.) |
 | Gibberish audio timed to text length | Variant selection, intensity modifiers |
-| Hot reload on script change | VS Code extension (syntax highlighting, autocomplete) |
+| Manual refresh to see changes | VS Code extension (syntax highlighting, autocomplete) |
 
 ---
 
