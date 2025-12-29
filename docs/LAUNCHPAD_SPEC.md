@@ -116,40 +116,37 @@ Why: Transparent video that plays natively in browsers. No plugins, no special h
 
 Why: Native browser API for audio playback, timing, and (eventually) effects like reverb for location acoustics.
 
-**Dev Server:** Simple Node HTTP server
+**Dev Server:** Any static file server
 
-Why: Just serves static files — the HTML, JS, assets, and the `.foreigners` script. No file watching, no WebSocket. Refresh the browser to see changes. Simple, fewer moving parts.
+Why: Just serves files. That's it. No custom server code needed — use `npx serve .` or `python3 -m http.server`. The browser does all the parsing and rendering. Refresh to see changes.
 
 **Key Dependencies:**
-- Standard Node HTTP server (no framework needed for first life)
-- That's it — minimal dependencies
+- Any static file server (no custom code)
+- That's literally it
 
 ---
 
 ## System Architecture
 
 ```
+┌──────────────────────────────────────┐
+│   Static File Server                 │
+│   (npx serve . or python -m http)    │
+│                                      │
+│   Just serves files, nothing else    │
+└──────────────────┬───────────────────┘
+                   │ HTTP
+                   ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                        Dev Server (Node)                     │
+│                      Browser (does everything)               │
+│                                                              │
 │  ┌─────────────┐  ┌─────────────────────┐                   │
 │  │   Parser    │  │  Asset Discovery    │                   │
-│  │   (FSL)     │  │  (folder scanner)   │                   │
+│  │   (FSL)     │  │  (reads asset list) │                   │
 │  └──────┬──────┘  └──────────┬──────────┘                   │
 │         │                     │                              │
 │         └──────────┬──────────┘                              │
-│                    │                                         │
-│              ┌─────▼─────┐                                   │
-│              │   API     │                                   │
-│              │ (serves   │                                   │
-│              │ parsed    │                                   │
-│              │ script +  │                                   │
-│              │ assets)   │                                   │
-│              └─────┬─────┘                                   │
-└────────────────────┼────────────────────────────────────────┘
-                     │ HTTP (refresh to reload)
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Browser (Renderer)                      │
+│                    ▼                                         │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │  Playback   │  │   Canvas    │  │     Web Audio       │  │
 │  │  Engine     │──▶  Compositor │  │     (gibberish)     │  │
@@ -162,14 +159,13 @@ Why: Just serves static files — the HTML, JS, assets, and the `.foreigners` sc
 
 **Components (explained simply):**
 
+*Everything runs in the browser. The server just serves files.*
+
 - **Parser** — *The translator.* 
   Reads your `.foreigners` script and turns it into data the computer understands. Like translating a recipe written in English into step-by-step instructions a robot can follow. "Mario says hello with a happy emotion" becomes structured data the engine can work with.
 
 - **Asset Discovery** — *The inventory checker.*
-  Looks through all your folders to find what characters, emotions, and locations you have available. Like checking what ingredients are in your kitchen before cooking. "Okay, we have Mario with happy/sad/angry, and Luigi with happy/neutral..."
-
-- **API** — *The waiter.*
-  The browser asks "what's in the script?" and "what assets exist?" — the API serves up the answers. It's the messenger between the server (which has the files) and the browser (which displays everything).
+  Reads a list of what characters, emotions, and locations you have available. Like checking what ingredients are in your kitchen before cooking. "Okay, we have Mario with happy/sad/angry, and Luigi with happy/neutral..."
 
 - **Playback Engine** — *The conductor.*
   Knows the timing and order of everything. "First Mario talks, then Luigi responds, then Mario again..." It tells everyone else what to do and when. Like a conductor leading an orchestra through a piece of music.
@@ -184,16 +180,16 @@ Why: Just serves static files — the HTML, JS, assets, and the `.foreigners` sc
 
 ## Data Flow
 
-**On startup:**
-1. Server scans asset folders → builds asset inventory
-2. Server parses `.foreigners` file → produces structured script data
-3. Browser fetches script data + asset inventory
+**On page load:**
+1. Browser fetches the `.foreigners` script file (just a text file)
+2. Browser parses it into structured data (JavaScript does this)
+3. Browser reads the asset manifest to know what's available
 4. Browser loads required assets (videos, audio) for the script
 
 **On script change:**
 1. You edit and save the script
 2. You refresh the browser
-3. Browser fetches the script, server parses it
+3. Browser fetches and re-parses the script
 4. Browser re-renders from the beginning
 
 **During playback:**

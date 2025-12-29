@@ -33,14 +33,15 @@
 
 ## Q3: How does the preview connect to the script?
 
-**Decision:** Simple Node HTTP server, manual refresh
+**Decision:** Static file server + browser does all the work
 
 **Rationale:**
-- Just serves static files — HTML, JS, assets, the `.foreigners` script
-- No file watching, no WebSocket — simpler, fewer moving parts
-- You edit the script, save, refresh the browser to see changes
-- Aligns with principles: every piece justifies its existence, speed to interesting results
-- Hot reload can be added later if manual refresh becomes annoying
+- Server is just a dumb file server (`npx serve .` or `python3 -m http.server`)
+- No custom server code at all — zero fucking backend logic
+- Browser fetches the raw `.foreigners` file, parses it in JavaScript
+- All the smarts are in the browser: parsing, asset loading, rendering
+- Edit script, save, refresh browser — done
+- Simpler than fuck, fewer moving parts, faster to first life
 
 ---
 
