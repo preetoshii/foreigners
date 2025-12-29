@@ -86,13 +86,13 @@ The system's limitations — the looping gibberish, the static poses, the simple
 |------------|--------|
 | 2 characters, 3 emotions each, front angle only | Multiple angles (side, back, 3/4) |
 | 2 locations with background images | Exposition shots, ambient audio, acoustic profiles |
-| FSL scripting language (MVP syntax) | Title cards, transitions, camera movements |
-| Hand-written parser | VS Code extension with syntax highlighting + autocomplete |
-| Canvas-based preview renderer | Export to video file |
+| FSL scripting language (MVP syntax) | Extended FSL syntax (title cards, transitions, etc.) |
+| Hand-written parser | — |
+| Canvas-based preview in browser | Export to video file |
 | Single location per script | Multi-location scripts with automatic transitions |
 | Basic conversation shot (speaker/non-speaker) | Multiple shot types (close-up, wide, etc.) |
-| Gibberish audio timed to text length | Music cues, sound effects, narrator |
-| Hot reload on script change | Polished error handling and validation |
+| Gibberish audio timed to text length | Variant selection, intensity modifiers |
+| Hot reload on script change | VS Code extension (syntax highlighting, autocomplete) |
 
 ---
 
