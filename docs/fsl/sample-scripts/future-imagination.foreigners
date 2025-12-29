@@ -20,12 +20,14 @@ background: dark
 @downtown-alley
 
 [sfx: rain-ambient]
-[camera: slow-pan]
+[camera: conversation]
 
-luigi: [[nervous]] [[side]] Are you sure about this, Mario?
-mario: [[determined]] [[front]] I've never been more sure of anything.
+luigi: [[nervous]] Are you sure about this, Mario?
+mario: [[determined]] I've never been more sure of anything.
 luigi: [[anxious]] ...
-mario: [[confident]] [[close-up]] Tonight, we take back what's ours.
+
+[camera: close-up]
+mario: [[confident]] Tonight, we take back what's ours.
 
 [pause: 1.5s]
 
@@ -44,9 +46,10 @@ duration: 1.5s
 @vault-exterior
 
 [music: heist-theme]
+[camera: conversation]
 
-mario: [[focused]] [[side]] Okay. You remember the plan?
-luigi: [[nervous]] [[front]] Yeah. Yeah, I think so.
+mario: [[focused]] Okay. You remember the plan?
+luigi: [[nervous]] Yeah. Yeah, I think so.
 mario: [[stern]] You THINK so?
 luigi: [[defensive]] [[angry]] I KNOW so! Jeez.
 mario: [[satisfied]] ...
@@ -68,19 +71,20 @@ mario: [[calm]] Good. Let's move.
 
 [camera: wide]
 
-luigi: [[amazed]] [[front]] Woah... look at this place.
+luigi: [[amazed]] Woah... look at this place.
 mario: [[focused]] Stay on mission.
 luigi: [[distracted]] But Mario, look at all this—
-mario: [[angry:intense]] [[close-up]] LUIGI. Focus.
+
+[camera: close-up]
+mario: [[angry:intense]] LUIGI. Focus.
 
 [pause: 2s]
 
+[camera: conversation]
 luigi: [[chastened]] ...
 luigi: [[serious]] Right. Sorry. I'm focused.
 
-[camera: zoom-in]
-
-mario: [[determined]] [[side]] The case is in the back. 
+mario: [[determined]] The case is in the back. 
 mario: [[cautious]] Watch for lasers.
 luigi: [[nervous]] [[scared]] L-lasers?!
 
@@ -95,16 +99,19 @@ mario: [[calm]] Just step where I step.
 # SCENE 3: The Prize
 # --------------------------------------------
 
-[camera: dramatic-zoom]
+[camera: wide]
 
-mario: [[triumphant]] [[front]] There it is.
+mario: [[triumphant]] There it is.
 luigi: [[awestruck]] ...
-luigi: [[whispered]] [[happy]] We actually made it.
+luigi: [[happy]] We actually made it.
 
 [sfx: case-unlatch]
 
-mario: [[reverent]] [[close-up]] Our grandmother's recipe book.
+[camera: close-up]
+mario: [[reverent]] Our grandmother's recipe book.
 mario: [[emotional]] [[touched]] Finally back where it belongs.
+
+[camera: conversation]
 luigi: [[tearful]] [[happy]] Nonna would be so proud.
 
 [music: emotional-swell]
@@ -131,9 +138,10 @@ background: warm
 
 [music: cozy-afternoon]
 [sfx: cafe-ambience]
+[camera: conversation]
 
-mario: [[happy]] [[front]] You know, Luigi...
-luigi: [[content]] [[front]] Hmm?
+mario: [[happy]] You know, Luigi...
+luigi: [[content]] Hmm?
 mario: [[nostalgic]] [[peaceful]] Nonna's minestrone really is the best.
 luigi: [[happy]] The BEST.
 

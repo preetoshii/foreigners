@@ -84,13 +84,13 @@ The system's limitations — the looping gibberish, the static poses, the simple
 
 | First Life | Future Ideas |
 |------------|--------------|
-| 2 characters, 3 emotions each, 3/4 front + 3/4 back angles | Additional angles (full front, full side, full back, etc.) |
-| 2 locations, background image or video supported | Exposition shots, ambient audio, acoustic profiles |
-| FSL scripting language (characters, emotions, angles, locations) | Extended FSL syntax (title cards, transitions, etc.) |
+| 2 characters, 3 states each, front-34 + back-34 angles | Additional angles (full front, full side, full back, etc.) |
+| 2 locations with left/right perspective backgrounds | Wide shot backgrounds, ambient audio, acoustic profiles |
+| FSL scripting language (characters, states, locations) | Extended FSL syntax (title cards, transitions, `[camera:]`) |
 | Hand-written parser | — |
 | Canvas-based preview in browser | Export to video file |
-| Single location per script (architecture supports multi-location) | Multi-location scripts with automatic transitions |
-| Basic conversation shot (speaker/non-speaker) | Multiple shot types (close-up, wide, etc.) |
+| Single location per script (architecture supports multi-location) | Multi-location scripts with exposition shots + jingles |
+| Conversation shot only (speaker/non-speaker, auto-switches) | Multiple shot types (wide, close-up, etc.) |
 | Gibberish audio timed to text length | Variant selection, intensity modifiers |
 | Manual refresh to see changes | VS Code extension (syntax highlighting, autocomplete) |
 
@@ -212,6 +212,7 @@ A **character** is a digital puppet — a collection of video and audio assets t
 - Recorded against a removable backdrop (green screen or similar)
 - Silent footage of the character "speaking" — mouth moving, body expressing
 - Organized by **emotion** (neutral, happy, sad, angry, etc.)
+- Each emotion has **angles** (front-34, back-34) for different shot compositions
 - WebM format with alpha channel for transparency
 
 **Audio assets:**
@@ -223,11 +224,75 @@ A **character** is a digital puppet — a collection of video and audio assets t
 
 ### Locations
 
-A **location** is where a scene takes place — for first life, just a background image.
+A **location** is where a scene takes place — but crucially, locations aren't just single backgrounds. They're **perspectives on a space**.
 
-**First life:** Single background image per location.
+When you're shooting an over-the-shoulder shot focused on Mario, the background shows *what's behind Mario* (i.e., what he's looking at). When you flip to focus on Luigi, the background shows *what's behind Luigi* — a different part of the same space.
 
-**Future:** Ambient audio, acoustic profiles, exposition shots.
+**Background perspectives:**
+- `left.jpg/webm` — View from the left character's side (what's behind them)
+- `right.jpg/webm` — View from the right character's side (what's behind them)
+
+The engine automatically chooses the correct perspective based on who's speaking. For first life, Mario is always camera-left, Luigi is always camera-right.
+
+**Exposition shots:**
+- Short video clips that establish the location (exterior shot, establishing shot)
+- Played automatically during location transitions
+- Not tied to any camera/shot type — they're their own thing
+
+**First life:** Two background perspectives per location (left/right).
+
+**Future:** Wide shot backgrounds, ambient audio, acoustic profiles.
+
+### Camera (Shot Types)
+
+**The key insight:** Instead of controlling character angles directly in scripts, you control **shot types**. The engine figures out which angles and backgrounds to use.
+
+**Why this matters:**
+
+In a traditional over-the-shoulder shot, when the speaker changes, *everything changes*:
+- The speaker shows their front-34 angle (facing camera)
+- The listener shows their back-34 angle (facing away, often blurred)
+- The background perspective flips (showing what's behind the new speaker)
+
+If you had to manually specify all of this in the script, it would be tedious and error-prone. Instead, you specify **what kind of shot**, and the engine handles the composition.
+
+**First life: Conversation shot**
+
+The only shot type for first life. Here's how it works:
+
+1. **Speaker** renders in focus with front-34 angle
+2. **Non-speaker** renders blurred with back-34 angle
+3. **Background** shows the perspective from behind the speaker
+4. When speaker changes, everything automatically swaps
+
+No FSL syntax needed — conversation shot is the default and only option for first life.
+
+**How shot types are implemented:**
+
+Shot types are **baked into the engine code**, not configured via text files. Each shot type is code that knows:
+- Which character angles to use (speaker gets front-34, listener gets back-34)
+- Which background perspective to use (based on who's speaking)
+- How to position and composite everything
+- What blur/focus effects to apply
+
+**Future shot types:**
+- **Wide shot** — Both characters visible, uses a dedicated wide background
+- **Close-up** — Just the speaker, zoomed in
+- **Others** — As creative needs emerge
+
+**Future FSL syntax:**
+```fsl
+[camera: conversation]
+mario: [[happy]] Hey, what's up?
+
+[camera: wide]
+mario: [[frustrated]] I hate capitalism.
+luigi: [[sad]] Yeah, I'm with you there.
+```
+
+**Missing assets = clear errors:**
+
+If a shot type requires an asset that doesn't exist (e.g., wide shot needs a wide background), the system errors clearly: "Wide shot requires `backgrounds/wide.webm` for location 'rainbow-cafe'." No silent fallbacks that produce broken visuals.
 
 ### The Script (FSL)
 
@@ -254,38 +319,61 @@ Assets are discovered by scanning folders. The folder structure *is* the configu
 assets/
   characters/
     mario/
-      emotions/
+      states/
         happy/
-          video.webm        # or multiple variants: smile-1.webm, smile-2.webm
+          front-34/
+            video.webm      # or multiple variants: smile-1.webm, smile-2.webm
+          back-34/
+            video.webm
+          audio/
+            phrase-1.mp3
+            phrase-2.mp3
         sad/
-          video.webm
+          front-34/
+            video.webm
+          back-34/
+            video.webm
+          audio/
+            phrase-1.mp3
         angry/
-          video.webm
-      audio/
-        happy/
-          phrase-1.mp3
-          phrase-2.mp3
-        sad/
-          phrase-1.mp3
-        angry/
-          phrase-1.mp3
-          phrase-2.mp3
+          front-34/
+            video.webm
+          back-34/
+            video.webm
+          audio/
+            phrase-1.mp3
+            phrase-2.mp3
     luigi/
-      emotions/
-        ...
-      audio/
+      states/
         ...
   
   locations/
     rainbow-cafe/
-      background.jpg
+      backgrounds/
+        left.jpg            # View from left character's side (can be .jpg, .png, .webm)
+        right.jpg           # View from right character's side
+        wide.webm           # (Future) For wide shots
+      exposition/
+        exterior.mp4        # Establishing shot, played during transitions
     bridge/
-      background.jpg
+      backgrounds/
+        left.webm
+        right.webm
+      exposition/
+        approach.mp4
+  
+  jingles/                  # Global — not per-location
+    upbeat-1.mp3
+    dramatic-sting.mp3
+    peaceful.mp3
 ```
 
 **Rules:**
-- Character emotions are discovered from folder names
-- Multiple video/audio files in a folder = variants (randomly selected unless specified)
+- Character states (emotions) are discovered from folder names
+- Each state contains angle folders (front-34, back-34) and an audio folder
+- Multiple files in a folder = variants (randomly selected unless specified)
+- Location backgrounds are perspectives (left/right), not single images
+- Exposition shots are per-location, jingles are global
 - Missing assets don't break the system — they just limit options
 
 ---
@@ -383,6 +471,8 @@ Each milestone is a vertical slice — small but complete, testable. We're growi
 2. **Gibberish timing algorithm:** Exact formula for text length → audio duration. Start simple (word count × constant), refine based on how it feels.
 
 3. **Asset consistency:** How much visual consistency is needed across recordings? Trust design instincts for now.
+
+4. **Character positioning:** For first life, Mario is always camera-left, Luigi is always camera-right. Future: Should this be configurable per-scene? Per-script?
 
 ---
 

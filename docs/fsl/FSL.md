@@ -158,11 +158,29 @@ mario: [[angry]] [[side]] I can't believe you!
 luigi: [[sad]] [[front]] I'm sorry...
 ```
 
-### Shot Types
+### Camera (Shot Types)
+
+Shot types control how characters are composed on screen. The engine handles all the details — which angles to use, which background perspective to show, how to position everything.
 
 ```fsl
-[[close-up]] mario: [[angry]] This is UNACCEPTABLE!
+[camera: conversation]
+mario: [[happy]] Hey, what's up?
+luigi: [[neutral]] Not much.
+
+[camera: wide]
+mario: [[frustrated]] This affects both of us.
+luigi: [[sad]] I know.
+
+[camera: close-up]
+mario: [[angry]] This is UNACCEPTABLE!
 ```
+
+**How it works:**
+- `conversation` — Speaker in focus (front-34), non-speaker blurred (back-34), background shows speaker's perspective. Auto-switches when speaker changes.
+- `wide` — Both characters visible, uses wide background.
+- `close-up` — Just the speaker, zoomed in.
+
+Shot types are **baked into the engine** — each one is code that knows exactly how to composite the scene. You don't control angles directly; you control the shot, and the engine figures out the rest.
 
 ### Specific Variants
 
@@ -176,13 +194,6 @@ mario: [[angry:crazy-looking]] I'VE HAD ENOUGH!
 [music: tension-building]
 [sfx: door-slam]
 [music: stop]
-```
-
-### Camera Movements
-
-```fsl
-[camera: zoom-in]
-[camera: pan-left]
 ```
 
 ### Actions
@@ -210,12 +221,14 @@ mario: [[angry:crazy-looking]] I'VE HAD ENOUGH!
 
 | Pattern | Type | Example |
 |---------|------|---------|
-| `[[...]]` | Inline modifier | `[[happy]]`, `[[side]]`, `[[close-up]]` |
-| `[...]` | Block directive | `[music: x]`, `[title-card]`, `[pause: 2s]` |
+| `[[...]]` | Inline modifier | `[[happy]]`, `[[angry:intense]]` |
+| `[...]` | Block directive | `[camera: wide]`, `[music: x]`, `[title-card]` |
 | `@...` | Location | `@rainbow-cafe` |
 | `#` | Comment | `# Scene 1` |
 
 Inline modifiers flow with dialogue. Block directives are standalone moments.
+
+**Note:** Shot types use block directives (`[camera: X]`), not inline modifiers. You set the camera once and it persists until changed. The engine handles all angle and background selection automatically.
 
 ---
 
