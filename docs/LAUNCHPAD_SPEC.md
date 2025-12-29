@@ -160,14 +160,25 @@ Why: Just serves static files — the HTML, JS, assets, and the `.foreigners` sc
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Components:**
+**Components (explained simply):**
 
-- **Parser:** Transforms FSL text into structured data (lines, emotions, locations)
-- **Asset Discovery:** Scans asset folders, builds inventory of available characters/emotions/locations
-- **API:** Serves parsed script and asset metadata to browser; notifies on changes
-- **Playback Engine:** Steps through parsed script, manages timing and sequencing
-- **Canvas Compositor:** Renders background, character videos, and subtitles to canvas
-- **Web Audio:** Plays gibberish clips timed to each line
+- **Parser** — *The translator.* 
+  Reads your `.foreigners` script and turns it into data the computer understands. Like translating a recipe written in English into step-by-step instructions a robot can follow. "Mario says hello with a happy emotion" becomes structured data the engine can work with.
+
+- **Asset Discovery** — *The inventory checker.*
+  Looks through all your folders to find what characters, emotions, and locations you have available. Like checking what ingredients are in your kitchen before cooking. "Okay, we have Mario with happy/sad/angry, and Luigi with happy/neutral..."
+
+- **API** — *The waiter.*
+  The browser asks "what's in the script?" and "what assets exist?" — the API serves up the answers. It's the messenger between the server (which has the files) and the browser (which displays everything).
+
+- **Playback Engine** — *The conductor.*
+  Knows the timing and order of everything. "First Mario talks, then Luigi responds, then Mario again..." It tells everyone else what to do and when. Like a conductor leading an orchestra through a piece of music.
+
+- **Canvas Compositor** — *The painter.*
+  Draws everything onto the screen — background first, then characters on top, then subtitles on top of that. Layers them like a collage. Every frame, it paints the whole picture fresh.
+
+- **Web Audio** — *The DJ.*
+  Plays the gibberish sounds at the right time, synced to the dialogue. Picks the right audio clips, strings them together, and makes sure they match the timing of the subtitles.
 
 ---
 
