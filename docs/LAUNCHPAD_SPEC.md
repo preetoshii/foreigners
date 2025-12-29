@@ -116,14 +116,13 @@ Why: Transparent video that plays natively in browsers. No plugins, no special h
 
 Why: Native browser API for audio playback, timing, and (eventually) effects like reverb for location acoustics.
 
-**Dev Server:** Node with file watching
+**Dev Server:** Simple Node HTTP server
 
-Why: Standard dev server pattern. Watches `.foreigners` files and asset folders, notifies browser on changes via WebSocket. Well-understood, reliable.
+Why: Just serves static files — the HTML, JS, assets, and the `.foreigners` script. No file watching, no WebSocket. Refresh the browser to see changes. Simple, fewer moving parts.
 
 **Key Dependencies:**
-- `chokidar` or native `fs.watch` for file watching
-- WebSocket library (or simple polling) for hot reload
 - Standard Node HTTP server (no framework needed for first life)
+- That's it — minimal dependencies
 
 ---
 
@@ -132,23 +131,23 @@ Why: Standard dev server pattern. Watches `.foreigners` files and asset folders,
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Dev Server (Node)                     │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │ File Watcher │  │   Parser    │  │  Asset Discovery    │  │
-│  │ (.foreigners)│  │   (FSL)     │  │  (folder scanner)   │  │
-│  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘  │
-│         │                │                     │             │
-│         └────────────────┼─────────────────────┘             │
-│                          │                                   │
-│                    ┌─────▼─────┐                             │
-│                    │   API     │                             │
-│                    │ (serves   │                             │
-│                    │ parsed    │                             │
-│                    │ script +  │                             │
-│                    │ assets)   │                             │
-│                    └─────┬─────┘                             │
-└──────────────────────────┼───────────────────────────────────┘
-                           │ HTTP + WebSocket
-                           ▼
+│  ┌─────────────┐  ┌─────────────────────┐                   │
+│  │   Parser    │  │  Asset Discovery    │                   │
+│  │   (FSL)     │  │  (folder scanner)   │                   │
+│  └──────┬──────┘  └──────────┬──────────┘                   │
+│         │                     │                              │
+│         └──────────┬──────────┘                              │
+│                    │                                         │
+│              ┌─────▼─────┐                                   │
+│              │   API     │                                   │
+│              │ (serves   │                                   │
+│              │ parsed    │                                   │
+│              │ script +  │                                   │
+│              │ assets)   │                                   │
+│              └─────┬─────┘                                   │
+└────────────────────┼────────────────────────────────────────┘
+                     │ HTTP (refresh to reload)
+                     ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                      Browser (Renderer)                      │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
@@ -163,7 +162,6 @@ Why: Standard dev server pattern. Watches `.foreigners` files and asset folders,
 
 **Components:**
 
-- **File Watcher:** Monitors the `.foreigners` script file for changes
 - **Parser:** Transforms FSL text into structured data (lines, emotions, locations)
 - **Asset Discovery:** Scans asset folders, builds inventory of available characters/emotions/locations
 - **API:** Serves parsed script and asset metadata to browser; notifies on changes
@@ -182,11 +180,10 @@ Why: Standard dev server pattern. Watches `.foreigners` files and asset folders,
 4. Browser loads required assets (videos, audio) for the script
 
 **On script change:**
-1. File watcher detects change
-2. Server re-parses script
-3. Server notifies browser via WebSocket
-4. Browser fetches updated script data
-5. Browser re-renders from current position (or restarts)
+1. You edit and save the script
+2. You refresh the browser
+3. Browser fetches the script, server parses it
+4. Browser re-renders from the beginning
 
 **During playback:**
 1. Playback engine reads next line from parsed script
@@ -364,7 +361,7 @@ Each milestone is a vertical slice — small but complete, testable. We're growi
 
 - Automatic advancement: when audio finishes, next line starts
 - Timing synced: video, audio, and subtitles all coordinated
-- Hot reload: save script, browser updates automatically
+- Manual refresh: save script, refresh browser to see changes
 
 **Done when:** Write a script, save it, press play, watch the whole thing — **THIS IS FIRST LIFE**
 

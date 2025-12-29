@@ -33,15 +33,14 @@
 
 ## Q3: How does the preview connect to the script?
 
-**Decision:** Node server with file watching and hot reload
+**Decision:** Simple Node HTTP server, manual refresh
 
 **Rationale:**
-- Need a local server anyway to serve preview HTML and assets
-- Node has excellent file watching (`chokidar` or native `fs.watch`)
-- Server watches the `.foreigners` file, notifies browser on change (WebSocket or polling)
-- Browser re-renders instantly — tight feedback loop
-- Server can also validate script and report errors to preview
-- Standard "dev server" pattern, reliable and well-understood
+- Just serves static files — HTML, JS, assets, the `.foreigners` script
+- No file watching, no WebSocket — simpler, fewer moving parts
+- You edit the script, save, refresh the browser to see changes
+- Aligns with principles: every piece justifies its existence, speed to interesting results
+- Hot reload can be added later if manual refresh becomes annoying
 
 ---
 
