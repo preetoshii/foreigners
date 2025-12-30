@@ -484,6 +484,16 @@ async function play() {
     currentEventIndex = i;
     const event = timeline.events[i];
 
+    // Wait for any gap before this event (e.g., speaker change gap)
+    if (i > 0) {
+      const prevEvent = timeline.events[i - 1];
+      const gap = event.startTime - prevEvent.endTime;
+      if (gap > 0) {
+        await sleep(gap);
+        if (stopRequested) break;
+      }
+    }
+
     updateDisplay();
     updateDotStates();
 

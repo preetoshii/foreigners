@@ -20,7 +20,7 @@ export const config = {
   
   // Gap when speaker changes (ms)
   // Does NOT apply between consecutive lines from same speaker
-  speakerGapMs: 1000,
+  speakerGapMs: 5000,
   
   // ===== Location Changes =====
   
