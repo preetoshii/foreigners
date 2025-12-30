@@ -3,14 +3,21 @@
  * 
  * Handles loading and playing audio using Web Audio API.
  * Caches loaded audio buffers for reuse.
+ * Analyzes audio energy for natural cut points.
  */
+
+// Energy analysis config
+const ENERGY_WINDOW_MS = 20;    // Analyze in 20ms windows
+const ENERGY_THRESHOLD = 0.08;  // RMS below this = low energy (tune as needed)
 
 export function createAudioManager() {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const cache = new Map(); // path -> AudioBuffer
+  const cache = new Map();       // path -> AudioBuffer
+  const energyCache = new Map(); // path -> array of low-energy timestamps
 
   /**
    * Load an audio file and cache it.
+   * Also analyzes energy and caches low-energy points.
    * Returns the AudioBuffer.
    */
   async function load(path) {
@@ -28,7 +35,49 @@ export function createAudioManager() {
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     
     cache.set(path, audioBuffer);
+    
+    // Analyze energy and cache low-energy points
+    const lowEnergyPoints = analyzeEnergy(audioBuffer);
+    energyCache.set(path, lowEnergyPoints);
+    
     return audioBuffer;
+  }
+
+  /**
+   * Analyze audio buffer and return array of low-energy timestamps (seconds).
+   * These are good points to start/end audio without cutting mid-syllable.
+   */
+  function analyzeEnergy(audioBuffer) {
+    const sampleRate = audioBuffer.sampleRate;
+    const samples = audioBuffer.getChannelData(0); // Use first channel
+    const windowSize = Math.floor(sampleRate * ENERGY_WINDOW_MS / 1000);
+    const lowPoints = [];
+    
+    for (let i = 0; i < samples.length; i += windowSize) {
+      // Calculate RMS (root mean square) for this window
+      let sum = 0;
+      const end = Math.min(i + windowSize, samples.length);
+      for (let j = i; j < end; j++) {
+        sum += samples[j] * samples[j];
+      }
+      const rms = Math.sqrt(sum / (end - i));
+      
+      // If energy is below threshold, record this timestamp
+      if (rms < ENERGY_THRESHOLD) {
+        const timestamp = i / sampleRate;
+        lowPoints.push(timestamp);
+      }
+    }
+    
+    return lowPoints;
+  }
+
+  /**
+   * Get cached low-energy points for an audio file.
+   * Returns array of timestamps (seconds) or empty array if not analyzed.
+   */
+  function getLowEnergyPoints(path) {
+    return energyCache.get(path) || [];
   }
 
   /**
@@ -106,6 +155,7 @@ export function createAudioManager() {
   return {
     load,
     getDuration,
+    getLowEnergyPoints,
     play,
     pause,
     resume,

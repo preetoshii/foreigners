@@ -4,10 +4,16 @@
  * Takes parsed events and generates a timeline with computed timings.
  * Each event gets: duration, startTime, endTime
  * Text events also get: audioPath, audioStart
+ * 
+ * Uses energy analysis to find natural cut points in audio,
+ * avoiding mid-syllable cuts for more natural playback.
  */
 
 import { createRandom } from './seeded-random.js';
 import { config } from './config.js';
+
+// How far to search for low-energy points (seconds)
+const ENERGY_SEARCH_RANGE = 0.2; // 200ms
 
 /**
  * Estimate how long a piece of text should take to "speak"
@@ -16,6 +22,54 @@ function estimateDuration(text) {
   const words = text.trim().split(/\s+/).filter(w => w.length > 0);
   const wordMs = words.length * config.msPerWord;
   return Math.max(config.minDurationMs, wordMs);
+}
+
+/**
+ * Find the nearest low-energy point AT or AFTER the given time.
+ * Returns the original time if no suitable point found within range.
+ * 
+ * @param {number} time - Target time in seconds
+ * @param {number[]} lowPoints - Array of low-energy timestamps
+ * @param {number} maxSearch - Max distance to search (seconds)
+ * @returns {number} - Snapped time (>= original time)
+ */
+function findLowEnergyAfter(time, lowPoints, maxSearch = ENERGY_SEARCH_RANGE) {
+  const maxTime = time + maxSearch;
+  
+  for (const point of lowPoints) {
+    if (point >= time && point <= maxTime) {
+      return point;
+    }
+    // Since lowPoints is sorted, we can stop early
+    if (point > maxTime) break;
+  }
+  
+  // No suitable point found, return original
+  return time;
+}
+
+/**
+ * Find the nearest low-energy point AT or BEFORE the given time.
+ * Returns the original time if no suitable point found within range.
+ * 
+ * @param {number} time - Target time in seconds
+ * @param {number[]} lowPoints - Array of low-energy timestamps
+ * @param {number} maxSearch - Max distance to search (seconds)
+ * @returns {number} - Snapped time (<= original time)
+ */
+function findLowEnergyBefore(time, lowPoints, maxSearch = ENERGY_SEARCH_RANGE) {
+  const minTime = time - maxSearch;
+  let bestPoint = time; // Default to original
+  
+  for (const point of lowPoints) {
+    if (point >= minTime && point <= time) {
+      bestPoint = point; // Keep updating to get the closest one before time
+    }
+    // Since lowPoints is sorted, we can stop once past our target
+    if (point > time) break;
+  }
+  
+  return bestPoint;
 }
 
 /**
@@ -107,15 +161,28 @@ export async function generateTimeline(parsed, manifest, audioManager) {
         // Resolve audio path
         entry.audioPath = resolveAudioPath(event.character, event.state || 'neutral', manifest);
         
-        // Pick random start point in the audio
+        // Pick random start point in the audio, snapped to low-energy points
         if (entry.audioPath) {
           const audioDuration = audioManager.getDuration(entry.audioPath);
-          const playDuration = entry.duration / 1000; // Convert to seconds
+          const targetPlayDuration = entry.duration / 1000; // Convert to seconds
+          const lowPoints = audioManager.getLowEnergyPoints(entry.audioPath);
           
           // Make sure we have room for the clip
-          const maxStart = Math.max(0, audioDuration - playDuration);
-          entry.audioStart = random.range(0, maxStart);
-          entry.audioDuration = Math.min(playDuration, audioDuration - entry.audioStart);
+          const maxStart = Math.max(0, audioDuration - targetPlayDuration);
+          const rawStart = random.range(0, maxStart);
+          
+          // Snap start to low-energy point AT or AFTER rawStart
+          // (audio can start slightly later, never earlier)
+          const snappedStart = findLowEnergyAfter(rawStart, lowPoints);
+          
+          // Calculate target end and snap to low-energy point AT or BEFORE
+          // (audio can end slightly earlier, never later)
+          const targetEnd = snappedStart + targetPlayDuration;
+          const snappedEnd = findLowEnergyBefore(targetEnd, lowPoints);
+          
+          // Final values
+          entry.audioStart = snappedStart;
+          entry.audioDuration = Math.max(0.1, snappedEnd - snappedStart); // Min 100ms
         }
         break;
       }
