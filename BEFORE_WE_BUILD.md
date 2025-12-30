@@ -18,21 +18,8 @@ This doc captures everything that's deferred, unresolved, or needs your input be
 
 **Still need to figure out through building:** Exact positioning, scale, blur amount. Will iterate with real assets.
 
-### 2. Review the Milestones
-The 6 milestones in the spec are a rough draft. Review them together:
-
-- Are they in the right order?
-- Is each one small enough to complete quickly?
-- Is anything missing?
-- Is anything unnecessary for first life?
-
-**The milestones:**
-1. One character renders on screen
-2. Script file controls what renders
-3. Assets load from folders automatically
-4. Two characters in an OTS shot
-5. Gibberish audio plays for each line
-6. Full automatic playback — FIRST LIFE
+### 2. Define the Milestones
+Milestones are TBD in the spec. Define them together before building — see recommended approach below.
 
 ### 3. Test Assets
 Before building, you need placeholder assets matching the new structure:
