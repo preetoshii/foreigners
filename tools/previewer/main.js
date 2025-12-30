@@ -333,6 +333,14 @@ function handleKeydown(e) {
     case 'ArrowRight':
       handleNext();
       break;
+    case 'ArrowUp':
+    case 'ArrowDown':
+      e.preventDefault();
+      toggleDrawer();
+      break;
+    case 'Backslash':
+      toggleDebug();
+      break;
     case 'Escape':
       drawer.classList.remove('open');
       break;
