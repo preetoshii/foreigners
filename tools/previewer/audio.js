@@ -4,11 +4,14 @@
  * Handles loading and playing audio using Web Audio API.
  * Caches loaded audio buffers for reuse.
  * Analyzes audio energy for natural cut points.
+ * Applies micro-fades for smooth start/end.
  */
 
+import { config } from './config.js';
+
 // Energy analysis config
-const ENERGY_WINDOW_MS = 20;    // Analyze in 20ms windows
-const ENERGY_THRESHOLD = 0.05;  // RMS below this = low energy (tune as needed)
+const ENERGY_WINDOW_MS = 100;    // Analyze in 100ms windows
+const ENERGY_THRESHOLD = 0.01;  // RMS below this = low energy (tune as needed)
 
 export function createAudioManager() {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -92,7 +95,7 @@ export function createAudioManager() {
   }
 
   /**
-   * Play a portion of an audio file.
+   * Play a portion of an audio file with micro-fades.
    * 
    * @param {string} path - Path to the audio file (must be loaded first)
    * @param {number} startTime - Where to start in the audio (seconds)
@@ -113,12 +116,32 @@ export function createAudioManager() {
     return new Promise((resolve) => {
       const source = audioContext.createBufferSource();
       source.buffer = buffer;
-      source.connect(audioContext.destination);
+
+      // Create gain node for micro-fades
+      const gainNode = audioContext.createGain();
+      source.connect(gainNode);
+      gainNode.connect(audioContext.destination);
 
       // Clamp startTime to valid range
       const safeStart = Math.max(0, Math.min(startTime, buffer.duration - 0.1));
       // Clamp duration so we don't exceed buffer
       const safeDuration = Math.min(duration, buffer.duration - safeStart);
+
+      // Apply micro-fades
+      const fadeTime = config.audioFadeMs / 1000; // Convert to seconds
+      const now = audioContext.currentTime;
+      
+      // Fade in: start at 0, ramp to 1
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(1, now + fadeTime);
+      
+      // Fade out: ramp to 0 before end
+      const fadeOutStart = now + safeDuration - fadeTime;
+      if (fadeOutStart > now + fadeTime) {
+        // Only fade out if there's room after fade in
+        gainNode.gain.setValueAtTime(1, fadeOutStart);
+        gainNode.gain.linearRampToValueAtTime(0, now + safeDuration);
+      }
 
       source.onended = resolve;
       source.start(0, safeStart, safeDuration);
@@ -152,10 +175,18 @@ export function createAudioManager() {
     await Promise.all(paths.map(p => load(p)));
   }
 
+  /**
+   * Get the raw AudioBuffer for a loaded file (for waveform visualization).
+   */
+  function getBuffer(path) {
+    return cache.get(path) || null;
+  }
+
   return {
     load,
     getDuration,
     getLowEnergyPoints,
+    getBuffer,
     play,
     pause,
     resume,

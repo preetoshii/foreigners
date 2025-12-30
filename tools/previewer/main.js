@@ -8,6 +8,7 @@ import { parse } from '../parser/parser.js';
 import { createAudioManager } from './audio.js';
 import { generateTimeline } from './timeline.js';
 import { createRenderer } from './renderer.js';
+import { config } from './config.js';
 
 // ===== State =====
 let manifest = null;
@@ -52,6 +53,16 @@ const debugBar = document.getElementById('debug-bar');
 const debugLocation = document.getElementById('debug-location');
 const debugCharacter = document.getElementById('debug-character');
 const debugState = document.getElementById('debug-state');
+
+// Debug waveform
+const debugWaveform = document.getElementById('debug-waveform');
+const debugWaveformCanvas = document.getElementById('debug-waveform-canvas');
+const debugEnergyCount = document.getElementById('debug-energy-count');
+const debugAudioStart = document.getElementById('debug-audio-start');
+const debugAudioEnd = document.getElementById('debug-audio-end');
+const debugAudioDuration = document.getElementById('debug-audio-duration');
+const debugFadeDuration = document.getElementById('debug-fade-duration');
+const waveformCtx = debugWaveformCanvas.getContext('2d');
 
 // Overlay visibility
 let overlayTimeout = null;
@@ -330,6 +341,16 @@ function jumpToEvent(index) {
   updateDisplay();
   updateProgress();
   updateDotStates();
+  
+  // Update debug waveform if visible
+  if (debugWaveform.classList.contains('visible') && timeline) {
+    const event = timeline.events[index];
+    if (event && event.type === 'text' && event.audioPath) {
+      drawDebugWaveform(event.audioPath, event.audioStart, event.audioDuration);
+    } else {
+      clearDebugWaveform();
+    }
+  }
 }
 
 function handleKeydown(e) {
@@ -372,6 +393,17 @@ function toggleDrawer() {
 
 function toggleDebug() {
   debugBar.classList.toggle('visible');
+  debugWaveform.classList.toggle('visible');
+  
+  // Draw current event's waveform when toggled on
+  if (debugWaveform.classList.contains('visible') && timeline) {
+    const event = timeline.events[currentEventIndex];
+    if (event && event.type === 'text' && event.audioPath) {
+      drawDebugWaveform(event.audioPath, event.audioStart, event.audioDuration);
+    } else {
+      clearDebugWaveform();
+    }
+  }
 }
 
 function toggleFullscreen() {
@@ -481,6 +513,128 @@ function updateDebugBar(location, character, state) {
   debugLocation.textContent = location || '—';
   debugCharacter.textContent = character || '—';
   debugState.textContent = state || '—';
+}
+
+/**
+ * Draw waveform visualization for debug panel.
+ * Shows: waveform, low-energy markers, play region.
+ */
+function drawDebugWaveform(audioPath, startTime, duration) {
+  const buffer = audioManager.getBuffer(audioPath);
+  if (!buffer) {
+    clearDebugWaveform();
+    return;
+  }
+  
+  const lowPoints = audioManager.getLowEnergyPoints(audioPath);
+  const totalDuration = buffer.duration;
+  const samples = buffer.getChannelData(0);
+  
+  // Update stats
+  debugEnergyCount.textContent = lowPoints.length;
+  debugAudioStart.textContent = startTime.toFixed(3) + 's';
+  debugAudioEnd.textContent = (startTime + duration).toFixed(3) + 's';
+  debugAudioDuration.textContent = duration.toFixed(3) + 's';
+  debugFadeDuration.textContent = config.audioFadeMs + 'ms';
+  
+  // Set canvas size for HiDPI
+  const rect = debugWaveformCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  debugWaveformCanvas.width = rect.width * dpr;
+  debugWaveformCanvas.height = rect.height * dpr;
+  waveformCtx.scale(dpr, dpr);
+  
+  const width = rect.width;
+  const height = rect.height;
+  const midY = height / 2;
+  
+  // Clear canvas
+  waveformCtx.fillStyle = '#0a0a0a';
+  waveformCtx.fillRect(0, 0, width, height);
+  
+  // Draw play region background
+  const regionStartX = (startTime / totalDuration) * width;
+  const regionEndX = ((startTime + duration) / totalDuration) * width;
+  waveformCtx.fillStyle = 'rgba(59, 130, 246, 0.15)';
+  waveformCtx.fillRect(regionStartX, 0, regionEndX - regionStartX, height);
+  
+  // Draw fade regions
+  const fadeMs = config.audioFadeMs;
+  const fadeDuration = fadeMs / 1000; // Convert to seconds
+  const fadeWidthPx = (fadeDuration / totalDuration) * width;
+  
+  waveformCtx.fillStyle = 'rgba(251, 191, 36, 0.4)';
+  // Fade-in region
+  waveformCtx.fillRect(regionStartX, 0, fadeWidthPx, height);
+  // Fade-out region
+  waveformCtx.fillRect(regionEndX - fadeWidthPx, 0, fadeWidthPx, height);
+  
+  // Draw waveform (downsampled)
+  const samplesPerPixel = Math.floor(samples.length / width);
+  waveformCtx.strokeStyle = '#444';
+  waveformCtx.lineWidth = 1;
+  waveformCtx.beginPath();
+  
+  for (let x = 0; x < width; x++) {
+    const sampleIndex = Math.floor((x / width) * samples.length);
+    
+    // Find min/max in this pixel's sample range
+    let min = 0, max = 0;
+    for (let i = 0; i < samplesPerPixel && sampleIndex + i < samples.length; i++) {
+      const sample = samples[sampleIndex + i];
+      if (sample < min) min = sample;
+      if (sample > max) max = sample;
+    }
+    
+    const yMin = midY + min * midY * 0.9;
+    const yMax = midY + max * midY * 0.9;
+    
+    waveformCtx.moveTo(x, yMin);
+    waveformCtx.lineTo(x, yMax);
+  }
+  waveformCtx.stroke();
+  
+  // Draw low-energy markers
+  waveformCtx.fillStyle = '#4ade80';
+  for (const point of lowPoints) {
+    const x = (point / totalDuration) * width;
+    waveformCtx.fillRect(x - 0.5, 0, 1, height);
+  }
+  
+  // Draw start marker
+  waveformCtx.strokeStyle = '#3b82f6';
+  waveformCtx.lineWidth = 2;
+  waveformCtx.beginPath();
+  waveformCtx.moveTo(regionStartX, 0);
+  waveformCtx.lineTo(regionStartX, height);
+  waveformCtx.stroke();
+  
+  // Draw end marker
+  waveformCtx.strokeStyle = '#ef4444';
+  waveformCtx.beginPath();
+  waveformCtx.moveTo(regionEndX, 0);
+  waveformCtx.lineTo(regionEndX, height);
+  waveformCtx.stroke();
+  
+  // Reset scale
+  waveformCtx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+function clearDebugWaveform() {
+  debugEnergyCount.textContent = '—';
+  debugAudioStart.textContent = '—';
+  debugAudioEnd.textContent = '—';
+  debugAudioDuration.textContent = '—';
+  debugFadeDuration.textContent = '—';
+  
+  const rect = debugWaveformCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  debugWaveformCanvas.width = rect.width * dpr;
+  debugWaveformCanvas.height = rect.height * dpr;
+  waveformCtx.scale(dpr, dpr);
+  waveformCtx.fillStyle = '#0a0a0a';
+  waveformCtx.fillRect(0, 0, rect.width, rect.height);
+  waveformCtx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 function switchTab(tab) {
@@ -685,6 +839,10 @@ async function play() {
 
     // Handle event
     if (event.type === 'text' && event.audioPath) {
+      // Draw debug waveform if debug panel is visible
+      if (debugWaveform.classList.contains('visible')) {
+        drawDebugWaveform(event.audioPath, event.audioStart, event.audioDuration);
+      }
       try {
         await audioManager.play(event.audioPath, event.audioStart, event.audioDuration);
       } catch (e) {
@@ -692,6 +850,10 @@ async function play() {
         await sleep(event.duration);
       }
     } else if (event.duration > 0) {
+      // Clear waveform for non-audio events
+      if (debugWaveform.classList.contains('visible')) {
+        clearDebugWaveform();
+      }
       await sleep(event.duration);
     }
     

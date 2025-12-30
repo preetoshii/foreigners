@@ -28,5 +28,11 @@ export const config = {
   
   // Duration for location change (0 = instant)
   locationDurationMs: 0,
+
+  // ===== Audio =====
+  
+  // Micro-fade duration at start/end of audio clips (ms)
+  // Helps smooth any remaining clicks after energy detection
+  audioFadeMs: 15,
 };
 
