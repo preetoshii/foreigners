@@ -2,6 +2,9 @@
  * Canvas Renderer
  * 
  * Handles all visual rendering on the preview canvas.
+ * Renders at a fixed internal resolution (1920x1080) and lets CSS scale.
+ * This makes the canvas behave like a video - everything scales proportionally.
+ * 
  * Layers (drawn in order):
  *   0. Background - location visuals
  *   1. Characters - character video/images
@@ -9,12 +12,20 @@
  *   3. Effects    - post-processing, transitions
  */
 
+// Fixed internal resolution (like a video)
+const BASE_WIDTH = 1920;
+const BASE_HEIGHT = 1080;
+
 export function createRenderer(canvas) {
   const ctx = canvas.getContext('2d');
   
-  // State
-  let width = canvas.width;
-  let height = canvas.height;
+  // Set fixed internal resolution once
+  canvas.width = BASE_WIDTH;
+  canvas.height = BASE_HEIGHT;
+  
+  // Use fixed dimensions for all rendering
+  const width = BASE_WIDTH;
+  const height = BASE_HEIGHT;
   
   // Current frame data
   let currentState = {
@@ -26,19 +37,13 @@ export function createRenderer(canvas) {
   };
 
   /**
-   * Resize canvas (call when container size changes)
+   * Resize is now just CSS - internal resolution stays fixed
    */
   function resize(w, h) {
-    // Use device pixel ratio for crisp rendering
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
+    // Canvas internal size is fixed, CSS handles scaling
     canvas.style.width = `${w}px`;
     canvas.style.height = `${h}px`;
-    ctx.scale(dpr, dpr);
-    width = w;
-    height = h;
-    render();
+    // No need to re-render - content stays the same
   }
 
   /**
@@ -84,10 +89,14 @@ export function createRenderer(canvas) {
     const centerX = width / 2;
     const centerY = height / 2;
     
+    // Font sizes for 1080p - will scale with canvas
+    const fontSize = currentState.isSubtitleEmpty ? 36 : 72;
+    const lineHeight = currentState.isSubtitleEmpty ? 48 : 96;
+    
     // Subtitle text only (no speaker name - we'll see the actual character)
     ctx.font = currentState.isSubtitleEmpty 
-      ? '400 16px "Instrument Sans", system-ui, sans-serif'
-      : '600 32px "Instrument Sans", system-ui, sans-serif';
+      ? `400 ${fontSize}px "Instrument Sans", system-ui, sans-serif`
+      : `600 ${fontSize}px "Instrument Sans", system-ui, sans-serif`;
     ctx.fillStyle = currentState.isSubtitleEmpty ? '#666' : '#fff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -95,14 +104,13 @@ export function createRenderer(canvas) {
     // Text shadow for readability
     if (!currentState.isSubtitleEmpty) {
       ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-      ctx.shadowBlur = 20;
-      ctx.shadowOffsetY = 2;
+      ctx.shadowBlur = 40;
+      ctx.shadowOffsetY = 4;
     }
     
     // Word wrap for long subtitles
     const maxWidth = width * 0.8;
     const lines = wrapText(currentState.subtitle, maxWidth);
-    const lineHeight = currentState.isSubtitleEmpty ? 24 : 44;
     const totalHeight = lines.length * lineHeight;
     const startY = centerY - totalHeight / 2 + lineHeight / 2;
     
