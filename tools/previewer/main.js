@@ -55,6 +55,10 @@ const debugState = document.getElementById('debug-state');
 let overlayTimeout = null;
 const OVERLAY_HIDE_DELAY = 1500; // 1.5 seconds
 
+// LocalStorage keys for persistence
+const STORAGE_EPISODE = 'foreigners_lastEpisode';
+const STORAGE_EVENT = 'foreigners_lastEvent';
+
 // ===== Initialize =====
 async function init() {
   // Initialize renderer
@@ -110,6 +114,26 @@ async function init() {
   
   // Initially show overlay
   showOverlay();
+
+  // Restore last session
+  const lastEpisode = localStorage.getItem(STORAGE_EPISODE);
+  const lastEvent = localStorage.getItem(STORAGE_EVENT);
+  
+  if (lastEpisode && episodeSelect.querySelector(`option[value="${lastEpisode}"]`)) {
+    episodeSelect.value = lastEpisode;
+    loadBtn.disabled = false;
+    
+    // Auto-load the episode
+    await handleLoad();
+    
+    // Jump to last event position
+    if (lastEvent && timeline) {
+      const eventIndex = parseInt(lastEvent, 10);
+      if (eventIndex > 0 && eventIndex < timeline.events.length) {
+        jumpToEvent(eventIndex);
+      }
+    }
+  }
 }
 
 function resizeCanvas() {
@@ -218,6 +242,10 @@ async function handleLoad() {
     updateDisplay();
     updateProgress();
 
+    // Save to localStorage
+    localStorage.setItem(STORAGE_EPISODE, filename);
+    localStorage.setItem(STORAGE_EVENT, '0');
+
   } catch (e) {
     console.error('Failed to load episode:', e);
     renderer.setState({ subtitle: 'Error: ' + e.message, isSubtitleEmpty: true });
@@ -285,6 +313,7 @@ function jumpToEvent(index) {
     stopRequested = true;
   }
   currentEventIndex = index;
+  localStorage.setItem(STORAGE_EVENT, String(index));
   updateDisplay();
   updateProgress();
   updateDotStates();
