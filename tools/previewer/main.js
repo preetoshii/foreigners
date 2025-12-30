@@ -149,10 +149,13 @@ async function handleLoad() {
   }
 }
 
+const PLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+const PAUSE_ICON = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
 function handlePlayPause() {
   if (isPlaying) {
     stopRequested = true;
-    playBtn.textContent = '▶';
+    playBtn.innerHTML = PLAY_ICON;
   } else {
     play();
   }
@@ -294,7 +297,7 @@ async function play() {
 
   isPlaying = true;
   stopRequested = false;
-  playBtn.textContent = '⏸';
+  playBtn.innerHTML = PAUSE_ICON;
 
   for (let i = currentEventIndex; i < timeline.events.length; i++) {
     if (stopRequested) break;
@@ -319,7 +322,7 @@ async function play() {
   }
 
   isPlaying = false;
-  playBtn.textContent = '▶';
+  playBtn.innerHTML = PLAY_ICON;
   
   if (!stopRequested) {
     // Finished - reset to start
