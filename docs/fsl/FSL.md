@@ -13,6 +13,8 @@ FSL is a custom domain-specific language designed for:
 
 The language prioritizes feeling like writing a screenplay, not programming.
 
+The parser converts FSL scripts into a stream of events that the playback engine consumes. For parser details, see [tools/parser/README.md](../../tools/parser/README.md).
+
 ---
 
 ## First Life vs Future

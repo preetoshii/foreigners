@@ -204,6 +204,45 @@ Why: Just serves files. That's it. No custom server code needed — use `npx ser
 
 ---
 
+## Parser Output Format
+
+The parser converts FSL text into a flat stream of events. The playback engine walks through these events in order.
+
+**Why flat events?**
+- Simpler consumer — just iterate, no nested loops
+- Each event is self-contained (character, state, text all included)
+- Easy to extend with new event types (pause, shot, sfx)
+- Array order *is* the timeline
+
+**Event types:**
+
+| Type | Purpose | Fields |
+|------|---------|--------|
+| `location` | Set scene location | `location` |
+| `text` | Dialogue to display/vocalize | `character`, `state`, `text` |
+| `pause` | Silent beat | `character`, `state` |
+| `shot` | Change camera framing (future) | `shot` |
+
+**Example output:**
+
+```json
+{
+  "seed": 12345,
+  "events": [
+    { "type": "location", "location": "rainbow-cafe" },
+    { "type": "text", "character": "mario", "state": "neutral", "text": "Hey." },
+    { "type": "text", "character": "luigi", "state": "happy", "text": "Hey!" },
+    { "type": "pause", "character": "mario", "state": "sympathetic" }
+  ]
+}
+```
+
+**State stickiness:** The parser tracks each character's state. If a line has no `[state]` tag, the previous state carries forward. Default is `neutral`. The consumer doesn't need to track state — each event already has the correct state attached.
+
+**For implementation details, see [tools/parser/README.md](../tools/parser/README.md).**
+
+---
+
 ## Core Concepts
 
 ### Characters (Foreigners)
