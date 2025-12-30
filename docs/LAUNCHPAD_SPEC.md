@@ -417,9 +417,83 @@ assets/
 
 ---
 
-## Launchpad Milestones
+## Foundations to Build
 
-> **TBD** — Milestones to be defined together before building begins. See recommendation below.
+Six foundational layers. Each one is a core system that needs to exist. Build them in order — each builds on the previous.
+
+---
+
+### Layer 1: Empty Stage
+*Get the infrastructure working*
+
+- TypeScript project setup
+- Static file server runs (`npx serve .`)
+- HTML page with canvas element
+
+**Done when:** Browser opens, you see a blank canvas.
+
+---
+
+### Layer 2: Parser
+*Understand the script*
+
+- Sample `.foreigners` script exists
+- Parser reads the file and extracts structure
+- Outputs: locations, characters, emotions, dialogue text
+
+**Done when:** Console logs the parsed script data.
+
+---
+
+### Layer 3: Asset Inventory
+*Know what assets exist*
+
+- Scan the `assets/` folder structure
+- Build inventory of characters, states, angles, locations
+- Know what's available before trying to use it
+
+**Done when:** Console logs available assets.
+
+---
+
+### Layer 4: Asset Loading
+*Load the actual files*
+
+- Load assets needed for the current script
+- Background images/videos ready
+- Character videos ready
+- Audio clips ready
+
+**Done when:** Console confirms all assets loaded.
+
+---
+
+### Layer 5: Renderer
+*Can draw things on canvas*
+
+- Draw background image/video
+- Draw character video with transparency
+- Draw subtitle text
+
+**Done when:** Can render a background, a character, and text on canvas.
+
+---
+
+### Layer 6: Audio
+*Can play sounds*
+
+- Load audio clips
+- Play audio on demand
+
+**Done when:** Can trigger an audio clip and hear it.
+
+---
+
+### ...then what?
+
+After these foundations exist, we build up from there — making the systems work together, adding OTS composition, speaker switching, timing, auto-playback. 
+
+We'll figure that out when we get there. First, let's get the foundations solid.
 
 ---
 

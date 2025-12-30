@@ -18,8 +18,8 @@ This doc captures everything that's deferred, unresolved, or needs your input be
 
 **Still need to figure out through building:** Exact positioning, scale, blur amount. Will iterate with real assets.
 
-### 2. Define the Milestones
-Milestones are TBD in the spec. Define them together before building — see recommended approach below.
+### 2. ✅ ~~Define the Milestones~~ → Now: Foundations to Build
+**RESOLVED** — Six foundational layers defined in the spec. After foundations, we'll figure out next steps organically.
 
 ### 3. Test Assets
 Before building, you need placeholder assets matching the new structure:
