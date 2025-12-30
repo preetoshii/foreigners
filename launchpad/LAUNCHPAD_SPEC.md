@@ -162,7 +162,7 @@ Why: Just serves files. That's it. No custom server code needed — use `npx ser
 *Everything runs in the browser. The server just serves files.*
 
 - **Parser** — *The translator.* 
-  Reads your `.foreigners` script and turns it into data the computer understands. Like translating a recipe written in English into step-by-step instructions a robot can follow. "Mario says hello with a happy emotion" becomes structured data the engine can work with.
+  Reads your `.episode` script and turns it into data the computer understands. Like translating a recipe written in English into step-by-step instructions a robot can follow. "Mario says hello with a happy emotion" becomes structured data the engine can work with.
 
 - **Asset Discovery** — *The inventory checker.*
   Reads a list of what characters, emotions, and locations you have available. Like checking what ingredients are in your kitchen before cooking. "Okay, we have Mario with happy/sad/angry, and Luigi with happy/neutral..."
@@ -181,7 +181,7 @@ Why: Just serves files. That's it. No custom server code needed — use `npx ser
 ## Data Flow
 
 **On page load:**
-1. Browser fetches the `.foreigners` script file (just a text file)
+1. Browser fetches the `.episode` script file (just a text file)
 2. Browser parses it into structured data (JavaScript does this)
 3. Browser reads the asset manifest to know what's available
 4. Browser loads required assets (videos, audio) for the script
@@ -470,7 +470,7 @@ Six foundational layers. Each one is a core system that needs to exist. Build th
 ### Layer 2: Parser
 *Understand the script*
 
-- Sample `.foreigners` script exists
+- Sample `.episode` script exists
 - Parser reads the file and extracts structure
 - Outputs: locations, characters, emotions, dialogue text
 

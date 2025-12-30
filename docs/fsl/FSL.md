@@ -234,8 +234,8 @@ These are ideas we might explore later. Nothing official — just possibilities.
 ## Sample Scripts
 
 See `sample-scripts/` for complete examples:
-- `first-life.foreigners` — All first life syntax demonstrated
-- `future.foreigners` — Future planned features (not yet functional)
+- `first-life.episode` — All first life syntax demonstrated
+- `future.episode` — Future planned features (not yet functional)
 
 ---
 

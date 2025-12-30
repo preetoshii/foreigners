@@ -38,7 +38,7 @@
 **Rationale:**
 - Server is just a dumb file server (`npx serve .` or `python3 -m http.server`)
 - No custom server code at all — zero fucking backend logic
-- Browser fetches the raw `.foreigners` file, parses it in JavaScript
+- Browser fetches the raw `.episode` file, parses it in JavaScript
 - All the smarts are in the browser: parsing, asset loading, rendering
 - Edit script, save, refresh browser — done
 - Simpler than fuck, fewer moving parts, faster to first life
@@ -79,7 +79,7 @@
 
 **Documentation:** See [fsl/FSL.md](fsl/FSL.md) for full syntax reference.
 
-**Sample scripts:** `fsl/sample-scripts/mvp.foreigners` and `future-imagination.foreigners`
+**Sample scripts:** `fsl/sample-scripts/first-life.episode` and `future.episode`
 
 ---
 
@@ -129,7 +129,7 @@
 **Decision:** Defined
 
 **First life is when you can:**
-1. Write a `.foreigners` script in any text editor
+1. Write a `.episode` script in any text editor
 2. Run a command (`npm run dev`)
 3. Open a browser and see your scene rendered
 4. Change the script, save, and see it update
