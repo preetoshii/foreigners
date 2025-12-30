@@ -112,8 +112,8 @@
     }
 
     .preview-container {
-      width: 100%;
-      max-width: 900px;
+      width: 900px;
+      max-width: calc(100vw - 4rem);
       aspect-ratio: 16 / 9;
       background: var(--surface);
       border: 2px solid var(--border);
@@ -122,6 +122,44 @@
       overflow: hidden;
       cursor: pointer;
     }
+
+    /* Corner resize handles */
+    .resize-handle {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .preview-container:hover .resize-handle {
+      opacity: 1;
+    }
+
+    .resize-handle::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .resize-handle:hover::after {
+      border-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .resize-handle.nw { top: 4px; left: 4px; cursor: nwse-resize; }
+    .resize-handle.nw::after { border-right: none; border-bottom: none; top: 0; left: 0; }
+
+    .resize-handle.ne { top: 4px; right: 4px; cursor: nesw-resize; }
+    .resize-handle.ne::after { border-left: none; border-bottom: none; top: 0; right: 0; }
+
+    .resize-handle.sw { bottom: 4px; left: 4px; cursor: nesw-resize; }
+    .resize-handle.sw::after { border-right: none; border-top: none; bottom: 0; left: 0; }
+
+    .resize-handle.se { bottom: 4px; right: 4px; cursor: nwse-resize; }
+    .resize-handle.se::after { border-left: none; border-top: none; bottom: 0; right: 0; }
 
     .preview-canvas {
       width: 100%;
@@ -596,6 +634,10 @@
     </div>
 
     <div class="preview-container" id="preview-container">
+      <div class="resize-handle nw" data-corner="nw"></div>
+      <div class="resize-handle ne" data-corner="ne"></div>
+      <div class="resize-handle sw" data-corner="sw"></div>
+      <div class="resize-handle se" data-corner="se"></div>
       <canvas class="preview-canvas" id="preview-canvas"></canvas>
       
       <!-- Overlay controls (YouTube-style) -->

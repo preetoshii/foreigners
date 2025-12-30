@@ -60,9 +60,13 @@ const OVERLAY_HIDE_DELAY = 1500; // 1.5 seconds
 // LocalStorage keys for persistence
 const STORAGE_EPISODE = 'foreigners_lastEpisode';
 const STORAGE_EVENT = 'foreigners_lastEvent';
+const STORAGE_PREVIEW_WIDTH = 'foreigners_previewWidth';
 
 // ===== Initialize =====
 async function init() {
+  // Restore saved preview size
+  restorePreviewSize();
+  
   // Initialize renderer
   renderer = createRenderer(previewCanvas);
   resizeCanvas();
@@ -102,6 +106,11 @@ async function init() {
   drawerHandle.addEventListener('mousedown', startResize);
   debugToggle.addEventListener('click', toggleDebug);
   fullscreenBtn.addEventListener('click', toggleFullscreen);
+  
+  // Preview resize handles
+  document.querySelectorAll('.resize-handle').forEach(handle => {
+    handle.addEventListener('mousedown', startPreviewResize);
+  });
   
   drawerTabs.forEach(tab => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -410,6 +419,62 @@ function stopResize() {
   drawer.classList.remove('dragging');
   document.removeEventListener('mousemove', resize);
   document.removeEventListener('mouseup', stopResize);
+}
+
+// ===== Preview Resize =====
+let isPreviewResizing = false;
+let previewStartX = 0;
+let previewStartWidth = 0;
+let previewCorner = null;
+
+function startPreviewResize(e) {
+  isPreviewResizing = true;
+  previewCorner = e.target.dataset.corner;
+  previewStartX = e.clientX;
+  previewStartWidth = previewContainer.offsetWidth;
+  document.addEventListener('mousemove', resizePreview);
+  document.addEventListener('mouseup', stopPreviewResize);
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function resizePreview(e) {
+  if (!isPreviewResizing) return;
+  
+  // Calculate delta based on which corner is being dragged
+  let deltaX = e.clientX - previewStartX;
+  
+  // For left corners, invert the delta
+  if (previewCorner === 'nw' || previewCorner === 'sw') {
+    deltaX = -deltaX;
+  }
+  
+  // Double the delta since we're resizing from center (both sides move)
+  const newWidth = Math.min(Math.max(400, previewStartWidth + deltaX * 2), window.innerWidth - 64);
+  
+  previewContainer.style.width = newWidth + 'px';
+  resizeCanvas();
+}
+
+function stopPreviewResize() {
+  if (isPreviewResizing) {
+    // Save the width
+    localStorage.setItem(STORAGE_PREVIEW_WIDTH, previewContainer.offsetWidth);
+  }
+  isPreviewResizing = false;
+  previewCorner = null;
+  document.removeEventListener('mousemove', resizePreview);
+  document.removeEventListener('mouseup', stopPreviewResize);
+}
+
+function restorePreviewSize() {
+  const savedWidth = localStorage.getItem(STORAGE_PREVIEW_WIDTH);
+  if (savedWidth) {
+    const width = parseInt(savedWidth, 10);
+    if (width >= 400 && width <= window.innerWidth - 64) {
+      previewContainer.style.width = width + 'px';
+    }
+  }
 }
 
 function updateDebugBar(location, character, state) {
