@@ -222,9 +222,11 @@ const PAUSE_ICON = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V
 function handlePlayPause() {
   if (isPlaying) {
     stopRequested = true;
+    audioManager.pause(); // Suspend audio context - freezes all audio in place
     playBtn.innerHTML = PLAY_ICON;
     showOverlay(); // Show overlay when paused
   } else {
+    audioManager.resume(); // Resume audio context if it was paused
     play();
   }
 }

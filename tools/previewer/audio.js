@@ -77,12 +77,23 @@ export function createAudioManager() {
   }
 
   /**
-   * Stop all audio and reset.
+   * Pause all audio (suspends the AudioContext).
+   * All sources freeze in place and can be resumed.
    */
-  function stopAll() {
-    // Create a new context to stop everything
-    // (There's no built-in "stop all" in Web Audio API)
-    // For now, this is a no-op - we'll handle stopping in the player
+  function pause() {
+    if (audioContext.state === 'running') {
+      audioContext.suspend();
+    }
+  }
+
+  /**
+   * Resume all audio (resumes the AudioContext).
+   * All sources continue from where they paused.
+   */
+  function resume() {
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
   }
 
   /**
@@ -96,8 +107,9 @@ export function createAudioManager() {
     load,
     getDuration,
     play,
+    pause,
+    resume,
     preloadAll,
-    stopAll,
     get context() { return audioContext; }
   };
 }
