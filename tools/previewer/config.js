@@ -2,38 +2,29 @@
  * Previewer Configuration
  * 
  * Timing and duration settings for episode playback.
- * Adjust these to fine-tune the feel of the preview.
  */
 
 export const config = {
-  // ===== Duration Estimation =====
+  // ===== Speech Duration =====
   
-  // Base milliseconds per word when estimating speech duration
-  msPerWord: 300,
+  // Milliseconds per word when estimating speech duration
+  msPerWord: 400,
   
-  // Milliseconds per character (used for very short text like "Oh")
-  msPerCharacter: 50,
-  
-  // Minimum duration for any text event (ms)
+  // Minimum duration for any text (handles short words like "Oh")
   minDurationMs: 500,
-  
-  // Multiplier applied to estimated durations (1.0 = normal, 1.5 = 50% slower)
-  durationMultiplier: 1.0,
   
   // ===== Pauses & Gaps =====
   
-  // Default duration for explicit pause events [...] (ms)
-  pauseDurationMs: 800,
+  // Duration for explicit pause events [...] (ms)
+  pauseDurationMs: 2000,
   
-  // Gap inserted when speaker changes (ms)
-  // This adds a natural breath/beat between different characters
-  // Does NOT apply between consecutive lines from the same speaker
-  speakerGapMs: 200,
+  // Gap when speaker changes (ms)
+  // Does NOT apply between consecutive lines from same speaker
+  speakerGapMs: 1000,
   
   // ===== Location Changes =====
   
-  // Duration to display location change (ms)
-  // Set to 0 for instant, or add time for the location to "breathe"
+  // Duration for location change (0 = instant)
   locationDurationMs: 0,
 };
 

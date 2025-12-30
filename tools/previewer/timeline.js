@@ -14,16 +14,8 @@ import { config } from './config.js';
  */
 function estimateDuration(text) {
   const words = text.trim().split(/\s+/).filter(w => w.length > 0);
-  
-  if (words.length === 0) return config.minDurationMs;
-  
-  // Use word count for longer text, character count for short text
-  const wordBasedMs = words.length * config.msPerWord;
-  const charBasedMs = text.length * config.msPerCharacter;
-  
-  // Use whichever is larger, with a minimum, then apply multiplier
-  const baseDuration = Math.max(config.minDurationMs, Math.max(wordBasedMs, charBasedMs));
-  return baseDuration * config.durationMultiplier;
+  const wordMs = words.length * config.msPerWord;
+  return Math.max(config.minDurationMs, wordMs);
 }
 
 /**
