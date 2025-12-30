@@ -33,6 +33,6 @@ export const config = {
   
   // Micro-fade duration at start/end of audio clips (ms)
   // Helps smooth any remaining clicks after energy detection
-  audioFadeMs: 15,
+  audioFadeMs: 100,
 };
 

@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    ".cursorrules": true,
+    "claude.md": true
+  }
+}
+
