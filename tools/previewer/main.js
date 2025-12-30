@@ -16,6 +16,9 @@ let currentEventIndex = 0;
 let isPlaying = false;
 let stopRequested = false;
 let currentScript = '';
+let playbackStartTime = 0;
+let playbackStartOffset = 0;
+let animationFrameId = null;
 
 // ===== DOM Elements =====
 const episodeSelect = document.getElementById('episode-select');
@@ -27,6 +30,8 @@ const locationDisplay = document.getElementById('location');
 const speakerDisplay = document.getElementById('speaker');
 const subtitleDisplay = document.getElementById('subtitle');
 const progressFill = document.getElementById('progress-fill');
+const progressDots = document.getElementById('progress-dots');
+const progressTrack = document.getElementById('progress-track');
 const timeDisplay = document.getElementById('time-display');
 const eventDisplay = document.getElementById('event-display');
 const drawerToggle = document.getElementById('drawer-toggle');
@@ -60,6 +65,7 @@ async function init() {
   playBtn.addEventListener('click', handlePlayPause);
   prevBtn.addEventListener('click', handlePrev);
   nextBtn.addEventListener('click', handleNext);
+  progressTrack.addEventListener('click', handleProgressClick);
   drawerToggle.addEventListener('click', toggleDrawer);
   drawerClose.addEventListener('click', () => drawer.classList.remove('open'));
   
@@ -74,9 +80,6 @@ async function init() {
 // ===== Episode List =====
 async function loadEpisodeList() {
   try {
-    // Fetch the episodes directory listing
-    // Since we can't list directories from browser, we'll use a manifest approach
-    // For now, try to load known episodes
     const knownEpisodes = ['test.episode', 'first-life.episode'];
     
     for (const filename of knownEpisodes) {
@@ -137,6 +140,9 @@ async function handleLoad() {
     prevBtn.disabled = false;
     nextBtn.disabled = false;
 
+    // Create event dots
+    createEventDots();
+
     // Show first event
     updateDisplay();
     updateProgress();
@@ -167,9 +173,7 @@ function handlePrev() {
   // Find previous text event
   for (let i = currentEventIndex - 1; i >= 0; i--) {
     if (timeline.events[i].type === 'text') {
-      currentEventIndex = i;
-      updateDisplay();
-      updateProgress();
+      jumpToEvent(i);
       break;
     }
   }
@@ -181,12 +185,37 @@ function handleNext() {
   // Find next text event
   for (let i = currentEventIndex + 1; i < timeline.events.length; i++) {
     if (timeline.events[i].type === 'text') {
-      currentEventIndex = i;
-      updateDisplay();
-      updateProgress();
+      jumpToEvent(i);
       break;
     }
   }
+}
+
+function handleProgressClick(e) {
+  if (!timeline) return;
+  
+  const rect = progressTrack.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickPercent = clickX / rect.width;
+  const clickTime = clickPercent * timeline.totalDuration;
+  
+  // Find the event at this time
+  for (let i = timeline.events.length - 1; i >= 0; i--) {
+    if (timeline.events[i].startTime <= clickTime) {
+      jumpToEvent(i);
+      break;
+    }
+  }
+}
+
+function jumpToEvent(index) {
+  if (isPlaying) {
+    stopRequested = true;
+  }
+  currentEventIndex = index;
+  updateDisplay();
+  updateProgress();
+  updateDotStates();
 }
 
 function handleKeydown(e) {
@@ -219,6 +248,43 @@ function switchTab(tab) {
   drawerTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   scriptContent.style.display = tab === 'script' ? 'block' : 'none';
   timelineContent.style.display = tab === 'timeline' ? 'block' : 'none';
+}
+
+// ===== Event Dots =====
+function createEventDots() {
+  progressDots.innerHTML = '';
+  
+  if (!timeline) return;
+  
+  timeline.events.forEach((event, index) => {
+    // Only show dots for text events (not locations or instant events)
+    if (event.type !== 'text' && event.type !== 'pause') return;
+    
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    if (event.type === 'text') dot.classList.add('text-event');
+    
+    const position = (event.startTime / timeline.totalDuration) * 100;
+    dot.style.left = `${position}%`;
+    dot.dataset.index = index;
+    
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      jumpToEvent(index);
+    });
+    
+    progressDots.appendChild(dot);
+  });
+  
+  updateDotStates();
+}
+
+function updateDotStates() {
+  const dots = progressDots.querySelectorAll('.progress-dot');
+  dots.forEach(dot => {
+    const index = parseInt(dot.dataset.index);
+    dot.classList.toggle('active', index === currentEventIndex);
+  });
 }
 
 // ===== Display Updates =====
@@ -266,7 +332,7 @@ function updateDisplay() {
   }
 }
 
-function updateProgress() {
+function updateProgress(currentTime = null) {
   if (!timeline) {
     progressFill.style.width = '0%';
     timeDisplay.textContent = '0:00 / 0:00';
@@ -274,12 +340,13 @@ function updateProgress() {
     return;
   }
 
+  // Use provided time or event start time
   const event = timeline.events[currentEventIndex];
-  const progress = event ? (event.startTime / timeline.totalDuration) * 100 : 0;
-  progressFill.style.width = `${progress}%`;
+  const time = currentTime !== null ? currentTime : (event ? event.startTime : 0);
+  const progress = (time / timeline.totalDuration) * 100;
+  progressFill.style.width = `${Math.min(100, progress)}%`;
 
-  const currentTime = event ? event.startTime : 0;
-  timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(timeline.totalDuration)}`;
+  timeDisplay.textContent = `${formatTime(time)} / ${formatTime(timeline.totalDuration)}`;
   eventDisplay.textContent = `${currentEventIndex + 1} / ${timeline.events.length}`;
 }
 
@@ -288,6 +355,36 @@ function formatTime(ms) {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+// ===== Smooth Progress Animation =====
+function startProgressAnimation(eventStartTime, eventDuration) {
+  playbackStartTime = performance.now();
+  playbackStartOffset = eventStartTime;
+  
+  function animate() {
+    if (!isPlaying || stopRequested) {
+      cancelAnimationFrame(animationFrameId);
+      return;
+    }
+    
+    const elapsed = performance.now() - playbackStartTime;
+    const currentTime = playbackStartOffset + elapsed;
+    updateProgress(currentTime);
+    
+    if (elapsed < eventDuration) {
+      animationFrameId = requestAnimationFrame(animate);
+    }
+  }
+  
+  animationFrameId = requestAnimationFrame(animate);
+}
+
+function stopProgressAnimation() {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
 }
 
 // ===== Playback =====
@@ -306,7 +403,14 @@ async function play() {
     const event = timeline.events[i];
 
     updateDisplay();
-    updateProgress();
+    updateDotStates();
+
+    // Start smooth progress animation
+    if (event.duration > 0) {
+      startProgressAnimation(event.startTime, event.duration);
+    } else {
+      updateProgress(event.startTime);
+    }
 
     // Handle event
     if (event.type === 'text' && event.audioPath) {
@@ -319,16 +423,20 @@ async function play() {
     } else if (event.duration > 0) {
       await sleep(event.duration);
     }
+    
+    stopProgressAnimation();
   }
 
   isPlaying = false;
   playBtn.innerHTML = PLAY_ICON;
+  stopProgressAnimation();
   
   if (!stopRequested) {
     // Finished - reset to start
     currentEventIndex = 0;
     updateDisplay();
     updateProgress();
+    updateDotStates();
   }
 }
 
