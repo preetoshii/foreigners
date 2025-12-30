@@ -30,6 +30,7 @@ const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
 const previewContainer = document.getElementById('preview-container');
 const previewCanvas = document.getElementById('preview-canvas');
+const overlay = document.getElementById('overlay');
 const progressFill = document.getElementById('progress-fill');
 const progressDots = document.getElementById('progress-dots');
 const progressTrack = document.getElementById('progress-track');
@@ -41,6 +42,10 @@ const drawerClose = document.getElementById('drawer-close');
 const drawerTabs = document.querySelectorAll('.drawer-tabs button');
 const scriptContent = document.getElementById('script-content');
 const timelineContent = document.getElementById('timeline-content');
+
+// Overlay visibility
+let overlayTimeout = null;
+const OVERLAY_HIDE_DELAY = 1500; // 1.5 seconds
 
 // ===== Initialize =====
 async function init() {
@@ -87,11 +92,51 @@ async function init() {
 
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeydown);
+
+  // Overlay visibility (YouTube-style)
+  previewContainer.addEventListener('mousemove', showOverlay);
+  previewContainer.addEventListener('mouseenter', showOverlay);
+  previewContainer.addEventListener('mouseleave', hideOverlayDelayed);
+  previewContainer.addEventListener('click', handleContainerClick);
+  
+  // Initially show overlay
+  showOverlay();
 }
 
 function resizeCanvas() {
   const rect = previewContainer.getBoundingClientRect();
   renderer.resize(rect.width, rect.height);
+}
+
+// ===== Overlay Visibility =====
+function showOverlay() {
+  clearTimeout(overlayTimeout);
+  overlay.classList.remove('hidden');
+  
+  // Only auto-hide if playing
+  if (isPlaying) {
+    overlayTimeout = setTimeout(hideOverlay, OVERLAY_HIDE_DELAY);
+  }
+}
+
+function hideOverlay() {
+  // Don't hide if paused or no timeline loaded
+  if (!isPlaying || !timeline) return;
+  overlay.classList.add('hidden');
+}
+
+function hideOverlayDelayed() {
+  clearTimeout(overlayTimeout);
+  if (isPlaying) {
+    overlayTimeout = setTimeout(hideOverlay, 300);
+  }
+}
+
+function handleContainerClick(e) {
+  // If clicking on canvas (not controls), toggle play
+  if (e.target === previewCanvas) {
+    handlePlayPause();
+  }
 }
 
 // ===== Episode List =====
@@ -176,6 +221,7 @@ function handlePlayPause() {
   if (isPlaying) {
     stopRequested = true;
     playBtn.innerHTML = PLAY_ICON;
+    showOverlay(); // Show overlay when paused
   } else {
     play();
   }
@@ -424,6 +470,9 @@ async function play() {
   isPlaying = true;
   stopRequested = false;
   playBtn.innerHTML = PAUSE_ICON;
+  
+  // Start overlay hide timer
+  overlayTimeout = setTimeout(hideOverlay, OVERLAY_HIDE_DELAY);
 
   for (let i = currentEventIndex; i < timeline.events.length; i++) {
     if (stopRequested) break;
@@ -459,6 +508,7 @@ async function play() {
   isPlaying = false;
   playBtn.innerHTML = PLAY_ICON;
   stopProgressAnimation();
+  showOverlay(); // Show overlay when stopped
   
   if (!stopRequested) {
     // Finished - reset to start
