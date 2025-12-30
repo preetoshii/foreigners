@@ -7,14 +7,16 @@ Reference scripts demonstrating the Foreigners scripting language.
 ### `mvp.foreigners`
 Uses **only MVP syntax** — what we're building first. This script should work with the initial implementation.
 
-**Features used:**
-- `seed:` for determinism
-- `#` comments
-- `@location` declarations
-- `character: text` dialogue
-- `[[emotion]]` inline tags
-- `...` silent beats
-- Emotion stickiness (last emotion persists)
+**Features demonstrated:**
+- `# comments` — ignored by parser
+- `seed: NUMBER` — deterministic randomness
+- `@location` — location declarations
+- `character: text` — dialogue lines
+- `[[emotion]]` — emotion tags (inline)
+- `[[emotion1]] text [[emotion2]] text` — mid-line emotion changes
+- `...` — silent beats (emote without speaking)
+- Emotion stickiness — last emotion persists until changed
+- Default emotion — `neutral` if never specified
 
 ### `future-imagination.foreigners`
 A **vision script** that imagines the full future syntax working together. This won't run until we implement these features, but it shows where the language can go.

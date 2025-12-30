@@ -1,55 +1,133 @@
 # ============================================
-# FOREIGNERS - Episode 1: "The Bridge Incident"
+# FOREIGNERS — MVP Sample Script
 # ============================================
-# This script uses only MVP syntax.
-
-seed: 42069
+# This script demonstrates ALL MVP syntax features.
+# Use it to test the parser and as a reference.
 
 # --------------------------------------------
-# SCENE 1: Rainbow Cafe
+# FEATURE: Seed (deterministic randomness)
+# --------------------------------------------
+
+seed: 12345
+
+# --------------------------------------------
+# FEATURE: Location declaration
 # --------------------------------------------
 
 @rainbow-cafe
 
-mario: [[happy]] Hey Luigi! Good to see you, brother.
-luigi: [[neutral]] Hey. Yeah. Good to see you too.
-mario: [[curious]] You okay? You seem a little off today.
-luigi: [[sad]] ...
-luigi: [[sad]] I've just been thinking about things, you know?
-mario: [[concerned]] What kind of things?
-luigi: [[sad]] The bridge. [[angry]] That stupid bridge.
-mario: [[confused]] Wait, what happened at the bridge?
+# --------------------------------------------
+# FEATURE: Dialogue with emotion tags
+# --------------------------------------------
+
+mario: [[happy]] Hey Luigi! Great to see you.
+luigi: [[neutral]] Hey Mario.
 
 # --------------------------------------------
-# SCENE 2: The Bridge
+# FEATURE: Emotion stickiness
+# (no tag = keep last emotion)
+# --------------------------------------------
+
+mario: How's it going?
+mario: I've been meaning to catch up with you.
+
+# Luigi is still neutral from before
+luigi: Yeah, it's been a while.
+
+# --------------------------------------------
+# FEATURE: Changing emotions
+# --------------------------------------------
+
+mario: [[curious]] You seem quiet today. Everything okay?
+luigi: [[sad]] Honestly? Not really.
+mario: [[concerned]] What's wrong?
+
+# --------------------------------------------
+# FEATURE: Silent beats
+# (character emotes but doesn't speak)
+# --------------------------------------------
+
+luigi: ...
+luigi: [[sad]] I've just been thinking about things.
+
+# --------------------------------------------
+# FEATURE: Mid-line emotion changes
+# (multiple [[tags]] in one line)
+# --------------------------------------------
+
+mario: [[sympathetic]] I'm here for you, buddy. [[warm]] Whatever it is.
+luigi: [[grateful]] Thanks, Mario. [[sad]] It's about the bridge.
+mario: [[confused]] The bridge? [[concerned]] What about it?
+
+# --------------------------------------------
+# FEATURE: Location change
+# (triggers exposition shot + jingle)
 # --------------------------------------------
 
 @bridge
 
-luigi: [[angry]] This is where it happened, Mario.
-luigi: [[angry]] Right here. [[sad]] This exact spot.
-mario: [[neutral]] ...
-mario: [[sympathetic]] I had no idea, Luigi. I'm so sorry.
-luigi: [[bitter]] Yeah well. [[neutral]] It is what it is.
+# --------------------------------------------
+# FEATURE: Default emotion
+# (first line without tag = neutral)
+# This is Mario's first line at new location without explicit emotion
+# But he had [[concerned]] before, so stickiness applies
+# --------------------------------------------
 
-# Long pause as they look out at the view
-mario: [[peaceful]] ...
-luigi: [[melancholy]] ...
+mario: So this is where it happened?
+luigi: [[somber]] Yeah. Right here.
 
-mario: [[hopeful]] Hey. Want to get some coffee? My treat.
-luigi: [[grateful]] [[happy]] Yeah. Yeah, I'd like that.
+# More silent beats
+mario: ...
+luigi: ...
 
 # --------------------------------------------
-# SCENE 3: Back to Rainbow Cafe
+# FEATURE: Emotional dialogue sequence
+# --------------------------------------------
+
+luigi: [[angry]] I still can't believe it happened.
+luigi: [[sad]] I trusted them, you know?
+mario: [[sympathetic]] I know you did.
+
+luigi: [[bitter]] And for what? [[sad]] Nothing.
+
+mario: [[gentle]] Hey. Look at me.
+luigi: [[vulnerable]] ...
+
+mario: [[warm]] You're not alone in this.
+mario: [[determined]] We'll figure it out together.
+
+luigi: [[touched]] ...
+luigi: [[grateful]] [[happy]] Thanks, Mario. That means a lot.
+
+# --------------------------------------------
+# FEATURE: Return to original location
 # --------------------------------------------
 
 @rainbow-cafe
 
-mario: [[happy]] Two espressos, please!
-luigi: [[content]] You know what, Mario?
-mario: [[curious]] What's that?
-luigi: [[happy]] You're a good brother.
-mario: [[touched]] [[happy]] Thanks, Luigi. So are you.
+mario: [[happy]] Come on. Coffee's on me.
+luigi: [[content]] Yeah. Yeah, I'd like that.
 
-# End of episode.
+# Final exchange — testing stickiness through multiple lines
+mario: You know what?
+luigi: What?
+mario: [[sincere]] You're a good brother, Luigi.
+luigi: [[happy]] So are you, Mario.
+
+# ============================================
+# END OF SCRIPT
+# ============================================
+# 
+# MVP SYNTAX DEMONSTRATED:
+# - # comments
+# - seed: NUMBER
+# - @location
+# - character: text
+# - [[emotion]] tags
+# - [[emotion1]] text [[emotion2]] more text (mid-line changes)
+# - ... (silent beats)
+# - emotion stickiness (persists until changed)
+# - default emotion (neutral if never specified)
+#
+# ============================================
 
