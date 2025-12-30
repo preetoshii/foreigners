@@ -207,12 +207,10 @@ The `shot:` prefix distinguishes shot tags from state tags, making parsing unamb
 
 These are ideas we might explore later. Nothing official — just possibilities.
 
-- **Title cards** — `[title-card] "Three weeks earlier..."` for scene headers
 - **Transitions** — Fade, cut, or other transitions between scenes
 - **Sound effects** — `[sfx: door-slam]`, `[sfx: drumroll]`
 - **Music cues** — `[music: tense]`, `[music: stop]`
 - **Pauses** — `[pause: 2s]` for explicit timing
-- **Narrator** — `[narrator] And so, the brothers understood...`
 - **Specific variants** — `[angry:crazy-looking]` to pick a specific asset variant
 - **Camera movements** — `[camera: zoom]`, `[camera: pan-left]`
 
