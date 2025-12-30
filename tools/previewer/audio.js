@@ -8,7 +8,7 @@
 
 // Energy analysis config
 const ENERGY_WINDOW_MS = 20;    // Analyze in 20ms windows
-const ENERGY_THRESHOLD = 0.08;  // RMS below this = low energy (tune as needed)
+const ENERGY_THRESHOLD = 0.05;  // RMS below this = low energy (tune as needed)
 
 export function createAudioManager() {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
