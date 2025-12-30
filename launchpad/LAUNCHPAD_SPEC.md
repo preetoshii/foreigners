@@ -404,17 +404,23 @@ assets/
     mario/
       states/
         happy/
-          front-34.webm     # One long continuous video
-          back-34.webm      # One long continuous video
-          audio.mp3         # One long continuous audio
+          video/
+            front-34.webm   # One long continuous video
+            back-34.webm    # One long continuous video
+          audio/
+            gibberish.mp3   # One long continuous audio (can have multiple)
         sad/
-          front-34.webm
-          back-34.webm
-          audio.mp3
+          video/
+            front-34.webm
+            back-34.webm
+          audio/
+            gibberish.mp3
         angry/
-          front-34.webm
-          back-34.webm
-          audio.mp3
+          video/
+            front-34.webm
+            back-34.webm
+          audio/
+            gibberish.mp3
     luigi/
       states/
         ...
@@ -442,7 +448,9 @@ assets/
 
 **Rules:**
 - Character states are discovered from folder names
-- Each state contains one video file per angle and one audio file
+- Each state contains a `video/` folder (with angle files) and an `audio/` folder
+- Video files are named by angle: `front-34.webm`, `back-34.webm`
+- Audio folder can contain one or more files — engine picks randomly
 - One long continuous recording per file — engine plays random portions
 - Location backgrounds are perspectives (left/right), not single images
 - Exposition shots are per-location, jingles are global
