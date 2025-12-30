@@ -1,0 +1,75 @@
+# ============================================
+# FUTURE SAMPLE SCRIPT
+# ============================================
+# Demonstrates planned future FSL features.
+# NOT functional yet — this is the vision.
+
+seed: 99999
+
+# --- Multi-location: Scene 1 ---
+
+@rainbow-cafe
+
+mario: [happy] [shot: ots] Luigi! Over here!
+luigi: [neutral] Hey Mario.
+mario: [excited] I found something incredible.
+luigi: [curious] What is it?
+
+# --- Mid-line shot change ---
+
+mario: [mysterious] [shot: ots] You know that old map we found? [shot: single] I figured out where it leads.
+luigi: [intrigued] [shot: ots] You're kidding.
+mario: [serious] Dead serious.
+
+# --- Two-shot for shared moment ---
+
+mario: [determined] [shot: two-shot] Are you in?
+luigi: [hesitant] I don't know, Mario...
+mario: [encouraging] Come on. One last adventure.
+luigi: [conflicted] [...]
+luigi: [resolute] Alright. I'm in.
+
+# --- Location change (triggers exposition + jingle) ---
+
+@bridge
+
+mario: [cautious] [shot: ots] This is it. The bridge from the map.
+luigi: [nervous] It looks... old.
+mario: [focused] Stay close.
+
+# --- Dramatic single shot ---
+
+luigi: [scared] [shot: single] Mario, I'm not sure about this.
+
+# --- Back to OTS ---
+
+mario: [reassuring] [shot: ots] Trust me.
+luigi: [trusting] Okay.
+
+# --- They cross ---
+
+mario: [relieved] We made it.
+luigi: [amazed] [shot: two-shot] Look at this place...
+
+# --- New location ---
+
+@ancient-ruins
+
+mario: [awestruck] [shot: two-shot] It's real. It's all real.
+luigi: [wonder] [shot: ots] The legends were true.
+mario: [triumphant] [shot: single] We did it, Luigi.
+luigi: [joyful] [shot: single] We actually did it!
+
+# --- Final moment ---
+
+mario: [peaceful] [shot: two-shot] [...]
+luigi: [content] [...]
+
+# ============================================
+# END — Future features demonstrated:
+# - Multi-location scripts (@location changes)
+# - Shot types ([shot: ots], [shot: two-shot], [shot: single])
+# - Shot stickiness
+# - Mid-line shot changes
+# ============================================
+

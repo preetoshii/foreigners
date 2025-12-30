@@ -232,7 +232,8 @@ These are ideas we might explore later. Nothing official — just possibilities.
 ## Sample Scripts
 
 See `sample-scripts/` for complete examples:
-- `mvp.foreigners` — First life syntax only
+- `first-life.foreigners` — All first life syntax demonstrated
+- `future.foreigners` — Future planned features (not yet functional)
 
 ---
 

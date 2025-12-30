@@ -1,0 +1,86 @@
+# ============================================
+# FIRST LIFE SAMPLE SCRIPT
+# ============================================
+# Demonstrates all first life FSL features.
+# Like "the quick brown fox" — covers everything.
+
+# Set seed for reproducible randomness
+seed: 12345
+
+# Single location (first life limitation)
+@rainbow-cafe
+
+# --- Default state (neutral) ---
+
+mario: Hey Luigi.
+luigi: Hey.
+
+# --- Explicit state tags ---
+
+mario: [happy] Good to see you, brother!
+luigi: [neutral] Yeah, you too.
+
+# --- State stickiness (no tag = keep last state) ---
+
+mario: How's everything going?
+mario: Haven't seen you in a while.
+luigi: It's been busy.
+
+# --- Changing states ---
+
+mario: [curious] Busy with what?
+luigi: [nervous] Oh, you know... stuff.
+mario: [suspicious] Stuff?
+luigi: [defensive] Yes, stuff! Why the interrogation?
+
+# --- Mid-line state changes ---
+
+mario: [calm] Whoa, relax. [concerned] I'm just asking.
+luigi: [guilty] Sorry, I didn't mean to snap. [sad] It's been a rough week.
+
+# --- Silent beats ---
+
+mario: [sympathetic] [...]
+luigi: [vulnerable] [...]
+
+# --- Conversation continues ---
+
+luigi: [sad] I messed up, Mario.
+mario: [gentle] What happened?
+luigi: [ashamed] I... I lost the family recipe book.
+mario: [shocked] You what?!
+luigi: [desperate] I know, I know! [pleading] Please don't tell Mama.
+
+# --- More mid-line shifts ---
+
+mario: [angry] Luigi, that book is irreplaceable! [softening] But... [sighing] accidents happen.
+luigi: [hopeful] You're not mad?
+mario: [warm] I'm mad. [forgiving] But you're my brother.
+
+# --- Silent moment of understanding ---
+
+luigi: [grateful] [...]
+mario: [supportive] [...]
+
+# --- Resolution ---
+
+mario: [determined] We'll find it.
+luigi: [surprised] We?
+mario: [confident] Yeah, we. That's what brothers do.
+luigi: [touched] Mario... [happy] thank you.
+mario: [happy] Now come on. Let's retrace your steps.
+luigi: [relieved] Okay. [hopeful] Okay, let's do this.
+
+# ============================================
+# END — All first life features demonstrated:
+# - Comments (#)
+# - Seed (seed: NUMBER)
+# - Location (@location)
+# - Dialogue (character: text)
+# - State tags ([state])
+# - State stickiness
+# - Default state (neutral)
+# - Mid-line state changes
+# - Silent beats ([...])
+# ============================================
+
