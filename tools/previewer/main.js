@@ -44,6 +44,13 @@ const drawerTabs = document.querySelectorAll('.drawer-tabs button');
 const scriptContent = document.getElementById('script-content');
 const timelineContent = document.getElementById('timeline-content');
 
+// Debug bar
+const debugToggle = document.getElementById('debug-toggle');
+const debugBar = document.getElementById('debug-bar');
+const debugLocation = document.getElementById('debug-location');
+const debugCharacter = document.getElementById('debug-character');
+const debugState = document.getElementById('debug-state');
+
 // Overlay visibility
 let overlayTimeout = null;
 const OVERLAY_HIDE_DELAY = 1500; // 1.5 seconds
@@ -86,6 +93,7 @@ async function init() {
   progressTrack.addEventListener('click', handleProgressClick);
   drawerToggle.addEventListener('click', toggleDrawer);
   drawerClose.addEventListener('click', () => drawer.classList.remove('open'));
+  debugToggle.addEventListener('click', toggleDebug);
   
   drawerTabs.forEach(tab => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -308,6 +316,16 @@ function toggleDrawer() {
   drawerToggle.textContent = drawer.classList.contains('open') ? 'Hide Details ↓' : 'Show Details ↑';
 }
 
+function toggleDebug() {
+  debugBar.classList.toggle('visible');
+}
+
+function updateDebugBar(location, character, state) {
+  debugLocation.textContent = location || '—';
+  debugCharacter.textContent = character || '—';
+  debugState.textContent = state || '—';
+}
+
 function switchTab(tab) {
   drawerTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   scriptContent.style.display = tab === 'script' ? 'block' : 'none';
@@ -384,6 +402,7 @@ function updateDisplay() {
         subtitle: event.text,
         isSubtitleEmpty: false,
       });
+      updateDebugBar(currentLocation, event.character, event.state);
       break;
     case 'pause':
       renderer.setState({
@@ -392,14 +411,16 @@ function updateDisplay() {
         subtitle: '...',
         isSubtitleEmpty: false,
       });
+      updateDebugBar(currentLocation, event.character, null);
       break;
     case 'location':
       renderer.setState({
         location: currentLocation,
         speaker: null,
-        subtitle: '📍 ' + event.location,
+        subtitle: null,
         isSubtitleEmpty: true,
       });
+      updateDebugBar(currentLocation, null, null);
       break;
     default:
       renderer.setState({
@@ -408,6 +429,7 @@ function updateDisplay() {
         subtitle: '',
         isSubtitleEmpty: true,
       });
+      updateDebugBar(currentLocation, null, null);
   }
 }
 

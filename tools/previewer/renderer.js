@@ -64,33 +64,9 @@ export function createRenderer(canvas) {
   // ===== Layer 0: Background =====
   function drawBackground() {
     // For now, solid dark background
+    // In the future, this will show location visuals
     ctx.fillStyle = '#0a0a0a';
     ctx.fillRect(0, 0, width, height);
-    
-    // Location badge (top-left)
-    if (currentState.location) {
-      ctx.save();
-      
-      // Badge background
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      const badgeText = currentState.location.toUpperCase();
-      ctx.font = '600 12px "Instrument Sans", system-ui, sans-serif';
-      const metrics = ctx.measureText(badgeText);
-      const badgePadX = 12;
-      const badgePadY = 8;
-      const badgeX = 24;
-      const badgeY = 24;
-      
-      roundRect(ctx, badgeX, badgeY, metrics.width + badgePadX * 2, 28, 4);
-      ctx.fill();
-      
-      // Badge text
-      ctx.fillStyle = '#666';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(badgeText, badgeX + badgePadX, badgeY + 14);
-      
-      ctx.restore();
-    }
   }
 
   // ===== Layer 1: Characters =====
@@ -108,17 +84,7 @@ export function createRenderer(canvas) {
     const centerX = width / 2;
     const centerY = height / 2;
     
-    // Speaker name (above subtitle)
-    if (currentState.speaker && !currentState.isSubtitleEmpty) {
-      ctx.font = '400 14px "Instrument Sans", system-ui, sans-serif';
-      ctx.fillStyle = '#666';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.letterSpacing = '0.5px';
-      ctx.fillText(currentState.speaker.toUpperCase(), centerX, centerY - 20);
-    }
-    
-    // Subtitle text
+    // Subtitle text only (no speaker name - we'll see the actual character)
     ctx.font = currentState.isSubtitleEmpty 
       ? '400 16px "Instrument Sans", system-ui, sans-serif'
       : '600 32px "Instrument Sans", system-ui, sans-serif';
@@ -155,20 +121,6 @@ export function createRenderer(canvas) {
 
   // ===== Helpers =====
   
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  }
-
   function wrapText(text, maxWidth) {
     const words = text.split(' ');
     const lines = [];

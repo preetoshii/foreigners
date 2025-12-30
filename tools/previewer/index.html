@@ -417,6 +417,13 @@
       flex: 1;
       overflow: auto;
       padding: 1rem 1.5rem;
+      /* Hide scrollbar but keep scroll functionality */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+
+    .drawer-content::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
     }
 
     .drawer-content pre,
@@ -440,6 +447,57 @@
       color: var(--text);
     }
 
+    /* ===== Debug Bar ===== */
+    .debug-bar {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .debug-bar.visible {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .debug-bar span {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .debug-bar .label {
+      color: #555;
+    }
+
+    .debug-bar .value {
+      color: var(--text);
+    }
+
+    .debug-toggle {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      opacity: 0.4;
+      transition: opacity 0.1s;
+    }
+
+    .debug-toggle:hover {
+      opacity: 1;
+    }
+
     /* ===== Hidden File Input ===== */
     #file-input {
       display: none;
@@ -458,6 +516,14 @@
   </header>
 
   <main>
+    <button class="debug-toggle" id="debug-toggle">DEBUG</button>
+    
+    <div class="debug-bar" id="debug-bar">
+      <span><span class="label">LOC:</span> <span class="value" id="debug-location">—</span></span>
+      <span><span class="label">CHAR:</span> <span class="value" id="debug-character">—</span></span>
+      <span><span class="label">STATE:</span> <span class="value" id="debug-state">—</span></span>
+    </div>
+
     <div class="preview-container" id="preview-container">
       <canvas class="preview-canvas" id="preview-canvas"></canvas>
       
