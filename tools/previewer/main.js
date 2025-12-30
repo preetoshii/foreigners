@@ -7,10 +7,12 @@
 import { parse } from '../parser/parser.js';
 import { createAudioManager } from './audio.js';
 import { generateTimeline } from './timeline.js';
+import { createRenderer } from './renderer.js';
 
 // ===== State =====
 let manifest = null;
 let audioManager = null;
+let renderer = null;
 let timeline = null;
 let currentEventIndex = 0;
 let isPlaying = false;
@@ -26,9 +28,8 @@ const loadBtn = document.getElementById('load-btn');
 const playBtn = document.getElementById('play-btn');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
-const locationDisplay = document.getElementById('location');
-const speakerDisplay = document.getElementById('speaker');
-const subtitleDisplay = document.getElementById('subtitle');
+const previewContainer = document.getElementById('preview-container');
+const previewCanvas = document.getElementById('preview-canvas');
 const progressFill = document.getElementById('progress-fill');
 const progressDots = document.getElementById('progress-dots');
 const progressTrack = document.getElementById('progress-track');
@@ -43,13 +44,24 @@ const timelineContent = document.getElementById('timeline-content');
 
 // ===== Initialize =====
 async function init() {
+  // Initialize renderer
+  renderer = createRenderer(previewCanvas);
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  // Show initial state
+  renderer.setState({
+    subtitle: 'Select an episode to begin',
+    isSubtitleEmpty: true,
+  });
+
   // Load manifest
   try {
     const response = await fetch('../../assets/manifest.json');
     manifest = await response.json();
   } catch (e) {
     console.error('Failed to load manifest:', e);
-    subtitleDisplay.textContent = 'Error loading assets';
+    renderer.setState({ subtitle: 'Error loading assets', isSubtitleEmpty: true });
     return;
   }
 
@@ -75,6 +87,11 @@ async function init() {
 
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeydown);
+}
+
+function resizeCanvas() {
+  const rect = previewContainer.getBoundingClientRect();
+  renderer.resize(rect.width, rect.height);
 }
 
 // ===== Episode List =====
@@ -109,8 +126,7 @@ async function handleLoad() {
   const filename = episodeSelect.value;
   if (!filename) return;
 
-  subtitleDisplay.textContent = 'Loading...';
-  subtitleDisplay.classList.add('empty');
+  renderer.setState({ subtitle: 'Loading...', isSubtitleEmpty: true });
 
   try {
     // Fetch the episode file
@@ -124,7 +140,7 @@ async function handleLoad() {
     const parsed = parse(currentScript);
     
     if (parsed.events.length === 0) {
-      subtitleDisplay.textContent = 'No events in script';
+      renderer.setState({ subtitle: 'No events in script', isSubtitleEmpty: true });
       return;
     }
 
@@ -147,11 +163,9 @@ async function handleLoad() {
     updateDisplay();
     updateProgress();
 
-    subtitleDisplay.classList.remove('empty');
-
   } catch (e) {
     console.error('Failed to load episode:', e);
-    subtitleDisplay.textContent = 'Error: ' + e.message;
+    renderer.setState({ subtitle: 'Error: ' + e.message, isSubtitleEmpty: true });
   }
 }
 
@@ -290,45 +304,60 @@ function updateDotStates() {
 // ===== Display Updates =====
 function updateDisplay() {
   if (!timeline || currentEventIndex >= timeline.events.length) {
-    locationDisplay.textContent = '—';
-    speakerDisplay.textContent = '';
-    subtitleDisplay.textContent = 'End of episode';
-    subtitleDisplay.classList.add('empty');
+    renderer.setState({
+      location: null,
+      speaker: null,
+      subtitle: 'End of episode',
+      isSubtitleEmpty: true,
+    });
     return;
   }
 
   const event = timeline.events[currentEventIndex];
 
   // Find current location (scan backwards)
-  let currentLocation = '—';
+  let currentLocation = null;
   for (let i = currentEventIndex; i >= 0; i--) {
     if (timeline.events[i].type === 'location') {
       currentLocation = timeline.events[i].location;
       break;
     }
   }
-  locationDisplay.textContent = currentLocation;
 
-  // Update based on event type
+  // Update renderer based on event type
   switch (event.type) {
     case 'text':
-      speakerDisplay.textContent = event.character;
-      subtitleDisplay.textContent = event.text;
-      subtitleDisplay.classList.remove('empty');
+      renderer.setState({
+        location: currentLocation,
+        speaker: event.character,
+        speakerState: event.state,
+        subtitle: event.text,
+        isSubtitleEmpty: false,
+      });
       break;
     case 'pause':
-      speakerDisplay.textContent = event.character || '';
-      subtitleDisplay.textContent = '...';
-      subtitleDisplay.classList.remove('empty');
+      renderer.setState({
+        location: currentLocation,
+        speaker: event.character || null,
+        subtitle: '...',
+        isSubtitleEmpty: false,
+      });
       break;
     case 'location':
-      speakerDisplay.textContent = '';
-      subtitleDisplay.textContent = '📍 ' + event.location;
-      subtitleDisplay.classList.add('empty');
+      renderer.setState({
+        location: currentLocation,
+        speaker: null,
+        subtitle: '📍 ' + event.location,
+        isSubtitleEmpty: true,
+      });
       break;
     default:
-      speakerDisplay.textContent = '';
-      subtitleDisplay.textContent = '';
+      renderer.setState({
+        location: currentLocation,
+        speaker: null,
+        subtitle: '',
+        isSubtitleEmpty: true,
+      });
   }
 }
 

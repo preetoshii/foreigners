@@ -118,49 +118,14 @@
       background: var(--surface);
       border: 2px solid var(--border);
       border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       position: relative;
       overflow: hidden;
     }
 
-    .location-badge {
-      position: absolute;
-      top: 1.5rem;
-      left: 1.5rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-dim);
-      background: rgba(0,0,0,0.6);
-      padding: 0.5rem 0.75rem;
-      border-radius: 4px;
-    }
-
-    .speaker {
-      font-size: 0.875rem;
-      color: var(--text-dim);
-      margin-bottom: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .subtitle {
-      font-size: 2rem;
-      font-weight: 600;
-      text-align: center;
-      line-height: 1.4;
-      max-width: 80%;
-      text-shadow: 0 2px 20px rgba(0,0,0,0.8);
-    }
-
-    .subtitle.empty {
-      color: var(--text-dim);
-      font-weight: 400;
-      font-size: 1rem;
+    .preview-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     /* ===== Transport Controls ===== */
@@ -418,10 +383,8 @@
   </header>
 
   <main>
-    <div class="preview-container">
-      <div class="location-badge" id="location">—</div>
-      <div class="speaker" id="speaker"></div>
-      <div class="subtitle empty" id="subtitle">Select an episode to begin</div>
+    <div class="preview-container" id="preview-container">
+      <canvas class="preview-canvas" id="preview-canvas"></canvas>
     </div>
 
     <div class="transport">
