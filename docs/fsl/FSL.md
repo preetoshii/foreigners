@@ -15,7 +15,17 @@ The language prioritizes feeling like writing a screenplay, not programming.
 
 ---
 
-## MVP Syntax
+## First Life vs Future
+
+This document distinguishes between:
+- **First Life Syntax** — What works in the initial implementation
+- **Future Syntax** — Planned extensions (not yet implemented)
+
+First life is intentionally minimal. We build the foundation, then expand.
+
+---
+
+## First Life Syntax
 
 ### Comments
 
@@ -24,25 +34,25 @@ The language prioritizes feeling like writing a screenplay, not programming.
 # Comments are ignored by the parser
 ```
 
+Lines starting with `#` are ignored.
+
 ### Seed (Optional)
 
 ```fsl
 seed: 42069
 ```
 
-Sets the random seed for deterministic output. Same seed = same random choices every time.
+Sets the random seed for deterministic output. Same seed = same random choices (variant selection, etc.) every time. Useful for reproducibility.
 
 ### Location Declaration
 
 ```fsl
 @rainbow-cafe
-@bridge
-@downtown-alley
 ```
 
-Sets the current location. When location changes, the engine automatically triggers:
-1. The new location's exposition shot (if it exists)
-2. A jingle (random or specified)
+Sets the location for the script. The location determines which background perspectives are used.
+
+**First Life:** Scripts have **one location**. Place `@location` at the start of your script. Multi-location scripts are a future feature.
 
 ### Dialogue Lines
 
@@ -53,6 +63,8 @@ luigi: Hey, what's up?
 
 Format: `character: text`
 
+The character name must match a character folder in `assets/characters/`. Case-sensitive.
+
 ### Emotion Tags
 
 ```fsl
@@ -61,9 +73,12 @@ luigi: [[sad]] I've been better.
 mario: [[curious]] What's wrong? [[concerned]] You look upset.
 ```
 
-- `[[emotion]]` can appear anywhere in the line
-- Multiple emotions in one line = emotion shifts mid-dialogue
-- Emotions are "sticky" — last emotion persists until changed
+- `[[emotion]]` sets the character's emotional state
+- Can appear anywhere in the line
+- Multiple tags in one line = emotion shifts mid-dialogue
+- Emotions are **sticky** — last emotion persists until changed
+
+**Note:** The emotion name must match a state folder in the character's `states/` directory (e.g., `assets/characters/mario/states/happy/`).
 
 ### Silent Beats
 
@@ -72,20 +87,20 @@ mario: [[sad]] ...
 luigi: [[thoughtful]] ...
 ```
 
-Use `...` as the dialogue text for a silent moment where the character emotes but doesn't speak.
+Use `...` as the dialogue text for a silent moment. The character displays their emotion but doesn't speak (no audio, no subtitle text).
 
 ---
 
-## Grammar Summary
+## Grammar Summary (First Life)
 
-| Syntax | Meaning |
-|--------|---------|
-| `# text` | Comment (ignored) |
-| `seed: NUMBER` | Set random seed |
-| `@location-name` | Set location |
-| `character: text` | Dialogue line |
-| `[[emotion]]` | Emotion tag (inline) |
-| `...` | Silent beat |
+| Syntax | Meaning | Required |
+|--------|---------|----------|
+| `# text` | Comment (ignored) | No |
+| `seed: NUMBER` | Set random seed | No |
+| `@location-name` | Set location | Yes (once, at start) |
+| `character: text` | Dialogue line | Yes |
+| `[[emotion]]` | Emotion tag (inline) | No (defaults to neutral) |
+| `...` | Silent beat (as dialogue text) | No |
 
 ---
 
@@ -106,6 +121,13 @@ mario: Tell me everything.       # Still curious
 
 If a character has never had an emotion specified, they default to `neutral`.
 
+```fsl
+@rainbow-cafe
+mario: Hey there.                # Mario is neutral (no emotion set yet)
+mario: [[happy]] Good to see you!  # Now Mario is happy
+luigi: What's up?                # Luigi is neutral (his first line, no emotion set)
+```
+
 ### Mid-Line Emotion Changes
 
 When multiple `[[emotion]]` tags appear in one line, the emotion shifts at that point in the dialogue:
@@ -114,11 +136,25 @@ When multiple `[[emotion]]` tags appear in one line, the emotion shifts at that 
 luigi: [[calm]] I thought about it and [[angry]] I'm furious!
 ```
 
-The subtitle and audio will reflect this shift — starting calm, becoming angry.
+The character starts calm, then shifts to angry mid-line. The subtitle and audio reflect this shift.
 
-### Location Transitions
+### Shot Type (OTS)
 
-Changing location triggers an automatic transition:
+For first life, all dialogue uses the **over-the-shoulder (OTS)** shot automatically:
+- Speaker shows front-34 angle, in focus
+- Non-speaker shows back-34 angle, blurred
+- Background perspective matches speaker's side
+- Everything swaps when speaker changes
+
+No FSL syntax needed — OTS is the default and only shot type for first life.
+
+---
+
+## Future Syntax (Planned)
+
+These features are **not part of first life** but show where the language will grow.
+
+### Multi-Location Scripts
 
 ```fsl
 @rainbow-cafe
@@ -128,15 +164,34 @@ mario: [[happy]] Let's go to the bridge!
 mario: [[peaceful]] Ah, here we are.
 ```
 
-Between `@rainbow-cafe` and `@bridge`, the engine shows:
-1. The bridge's exposition shot (exterior/establishing shot)
-2. A jingle (randomly selected or specified)
+When location changes, the engine will automatically show:
+1. The new location's exposition shot (if it exists)
+2. A jingle (randomly selected)
 
----
+*Requires: exposition shots and jingles in asset folders.*
 
-## Future Syntax (Planned)
+### Shot Types
 
-These features are not part of MVP but show where the language will grow.
+```fsl
+[shot: ots]
+mario: [[happy]] Hey, what's up?
+
+[shot: two-shot]
+mario: [[frustrated]] This affects both of us.
+luigi: [[sad]] I know.
+
+[shot: single]
+mario: [[emotional]] I just... I can't do this anymore.
+```
+
+**Shot types:**
+- `ots` — Over-the-shoulder (first life default)
+- `two-shot` — Both characters visible in profile, wide background
+- `single` — Just the speaker, zoomed in
+
+Shot types are **block directives** — set once, persists until changed.
+
+*Note: `[shot:]` controls framing. `[camera:]` is reserved for future movement commands (pan, zoom, dolly).*
 
 ### Scene Types
 
@@ -151,44 +206,13 @@ jingle: dramatic-sting
 style: fade
 ```
 
-### Angles
-
-```fsl
-mario: [[angry]] [[side]] I can't believe you!
-luigi: [[sad]] [[front]] I'm sorry...
-```
-
-### Shot Types
-
-Shot types control how characters are composed on screen. The engine handles all the details — which angles to use, which background perspective to show, how to position everything.
-
-```fsl
-[shot: ots]
-mario: [[happy]] Hey, what's up?
-luigi: [[neutral]] Not much.
-
-[shot: two-shot]
-mario: [[frustrated]] This affects both of us.
-luigi: [[sad]] I know.
-
-[shot: single]
-mario: [[angry]] This is UNACCEPTABLE!
-```
-
-**Shot types:**
-- `ots` (over-the-shoulder) — Speaker in focus (front-34), non-speaker blurred in foreground (back-34), background shows speaker's perspective. Auto-switches when speaker changes.
-- `two-shot` — Both characters visible in profile, uses wide background.
-- `single` — Just the speaker, zoomed in.
-
-Shot types are **baked into the engine** — each one is code that knows exactly how to composite the scene. You don't control angles directly; you control the shot, and the engine figures out the rest.
-
-*Note: `[shot:]` is for framing/composition. `[camera:]` is reserved for future movement commands (pan, zoom, dolly).*
-
 ### Specific Variants
 
 ```fsl
 mario: [[angry:crazy-looking]] I'VE HAD ENOUGH!
 ```
+
+Select a specific variant instead of random selection.
 
 ### Audio Cues
 
@@ -198,18 +222,13 @@ mario: [[angry:crazy-looking]] I'VE HAD ENOUGH!
 [music: stop]
 ```
 
-### Actions
-
-```fsl
-[action] mario walks to window
-[action] luigi sits down
-```
-
 ### Pauses
 
 ```fsl
 [pause: 2s]
 ```
+
+Explicit timing pause.
 
 ### Narrator
 
@@ -221,38 +240,52 @@ mario: [[angry:crazy-looking]] I'VE HAD ENOUGH!
 
 ## Pattern Summary
 
-| Pattern | Type | Example |
-|---------|------|---------|
-| `[[...]]` | Inline modifier | `[[happy]]`, `[[angry:intense]]` |
-| `[...]` | Block directive | `[shot: ots]`, `[music: x]`, `[title-card]` |
-| `@...` | Location | `@rainbow-cafe` |
-| `#` | Comment | `# Scene 1` |
+| Pattern | Type | Example | First Life? |
+|---------|------|---------|-------------|
+| `# text` | Comment | `# Scene 1` | ✅ |
+| `seed: NUMBER` | Seed | `seed: 42069` | ✅ |
+| `@location` | Location | `@rainbow-cafe` | ✅ (single) |
+| `character: text` | Dialogue | `mario: Hello!` | ✅ |
+| `[[emotion]]` | Inline modifier | `[[happy]]` | ✅ |
+| `...` | Silent beat | `mario: ...` | ✅ |
+| `[shot: X]` | Block directive | `[shot: two-shot]` | ❌ Future |
+| `[music: X]` | Block directive | `[music: tense]` | ❌ Future |
+| `[title-card]` | Block directive | `[title-card]` | ❌ Future |
 
-Inline modifiers flow with dialogue. Block directives are standalone moments.
+---
 
-**Note:** Shot types use block directives (`[shot: X]`), not inline modifiers. You set the shot once and it persists until changed. The engine handles all angle and background selection automatically.
+## Terminology Note
+
+In FSL, you write `[[emotion]]` tags like `[[happy]]`, `[[sad]]`, `[[angry]]`.
+
+In the asset folder structure, these are stored under `states/`:
+```
+assets/characters/mario/states/happy/
+```
+
+**"Emotion"** is the user-facing term (what you write in scripts).
+**"State"** is the asset organization term (folder names).
+
+They refer to the same thing.
 
 ---
 
 ## Sample Scripts
 
 See `sample-scripts/` for complete examples:
-- `mvp.foreigners` — MVP syntax only
-- `future-imagination.foreigners` — Full future vision
+- `mvp.foreigners` — First life syntax only
 
 ---
 
 ## Open Questions
 
-*To be resolved through iteration:*
+*To be resolved through building and iteration:*
 
-1. **Exact timing of mid-line emotion shifts** — where exactly does the subtitle split?
-2. **Multi-character simultaneous reactions** — how to show both characters reacting at once?
-3. **Escape sequences** — what if dialogue needs literal `[[` or `@`?
-4. **Character aliases** — shorthand for long character names?
-5. **Include/import** — splitting long episodes across files?
+1. **Exact timing of mid-line emotion shifts** — Where does the subtitle split? How does audio transition?
+2. **Escape sequences** — What if dialogue needs literal `[[` or `@`?
+3. **Character aliases** — Shorthand for long character names?
+4. **Include/import** — Splitting long episodes across files?
 
 ---
 
-*This document will evolve as we build and iterate on the language.*
-
+*This document is the source of truth for FSL syntax. It will evolve as we build.*
