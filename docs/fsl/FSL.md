@@ -152,7 +152,7 @@ No FSL syntax needed — OTS is the default and only shot type for first life.
 
 ## Future Syntax (Planned)
 
-These features are **not part of first life** but show where the language will grow.
+These features are **not part of first life** but are clearly on the roadmap.
 
 ### Multi-Location Scripts
 
@@ -199,64 +199,33 @@ The `shot:` prefix distinguishes shot tags from state tags, making parsing unamb
 
 *Note: `[camera:]` is reserved for future movement commands (pan, zoom, dolly).*
 
-### Scene Types
+---
 
-```fsl
-[title-card]
-text: "Three weeks earlier..."
-duration: 2s
-background: dark
+## Future Ideas
 
-[transition]
-jingle: dramatic-sting
-style: fade
-```
+These are ideas we might explore later. Nothing official — just possibilities.
 
-### Specific Variants
-
-```fsl
-mario: [angry:crazy-looking] I'VE HAD ENOUGH!
-```
-
-Select a specific variant instead of random selection.
-
-### Audio Cues
-
-```fsl
-[music: tension-building]
-[sfx: door-slam]
-[music: stop]
-```
-
-### Pauses
-
-```fsl
-[pause: 2s]
-```
-
-Explicit timing pause.
-
-### Narrator
-
-```fsl
-[narrator] And so, the brothers understood each other at last.
-```
+- **Title cards** — `[title-card] "Three weeks earlier..."` for scene headers
+- **Transitions** — Fade, cut, or other transitions between scenes
+- **Sound effects** — `[sfx: door-slam]`, `[sfx: drumroll]`
+- **Music cues** — `[music: tense]`, `[music: stop]`
+- **Pauses** — `[pause: 2s]` for explicit timing
+- **Narrator** — `[narrator] And so, the brothers understood...`
+- **Specific variants** — `[angry:crazy-looking]` to pick a specific asset variant
+- **Camera movements** — `[camera: zoom]`, `[camera: pan-left]`
 
 ---
 
-## Pattern Summary
+## Pattern Summary (First Life)
 
-| Pattern | Type | Example | First Life? |
-|---------|------|---------|-------------|
-| `# text` | Comment | `# Scene 1` | ✅ |
-| `seed: NUMBER` | Seed | `seed: 42069` | ✅ |
-| `@location` | Location | `@rainbow-cafe` | ✅ (single) |
-| `character: text` | Dialogue | `mario: Hello!` | ✅ |
-| `[state]` | Inline tag | `[happy]` | ✅ |
-| `[shot: X]` | Inline tag | `[shot: ots]` | ❌ Future |
-| `...` | Silent beat | `mario: ...` | ✅ |
-| `[music: X]` | Block directive | `[music: tense]` | ❌ Future |
-| `[title-card]` | Block directive | `[title-card]` | ❌ Future |
+| Pattern | Type | Example |
+|---------|------|---------|
+| `# text` | Comment | `# Scene 1` |
+| `seed: NUMBER` | Seed | `seed: 42069` |
+| `@location` | Location | `@rainbow-cafe` |
+| `character: text` | Dialogue | `mario: Hello!` |
+| `[state]` | Inline tag | `[happy]` |
+| `...` | Silent beat | `mario: ...` |
 
 ---
 
