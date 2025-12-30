@@ -135,3 +135,5 @@ function parse(input) {
   return { seed, events };
 }
 
+// Export for use as ES module
+export { parse };

@@ -144,83 +144,6 @@ The spec uses `canvas.captureStream()` — real-time recording of what's playing
 
 ---
 
-## Concrete Examples: What's Genuinely Hard
-
-### Easy With Both: Single-Event Look-Ahead
-
-**Cross-fade audio between scenes** — ambiance from next location fades in 2s before current scene ends:
-
-```javascript
-// On-the-fly handles this fine
-playEvent(event, nextEvent) {
-  const duration = estimateDuration(event);  // you just computed this
-  
-  if (nextEvent?.type === 'location') {
-    // Schedule fade-in 2s before this event ends
-    setTimeout(() => fadeInAmbiance(nextEvent.location), duration - 2000);
-  }
-  // ...
-}
-```
-
-You know your current event's duration, and you just peek at the next event's *type*. No future duration computation needed.
-
-**Other easy cases:** Transitions between events, SFX triggered at event start, any effect that only needs to know the *current* event's duration.
-
----
-
-### Genuinely Harder With On-the-Fly: Multi-Event Spans
-
-These are where pre-computed genuinely helps:
-
-#### Camera Zoom Across Multiple Dialogue Lines
-
-```
-PARTH: I have something to tell you.    ← zoom starts here (wide)
-PREET: What is it?
-PARTH: [upset] I ate your sandwich.     ← zoom ends here (tight)
-```
-
-Zoom speed = distance / **total duration of all 3 events**.
-
-- **Pre-computed:** Total span duration is known. Set speed = distance / 8s.
-- **On-the-fly:** When starting event 1, you don't know events 2-3 durations. Must compute them anyway — essentially mini-pre-computing.
-
-#### Music Build-Up Over Several Events
-
-```
-[music: tension-build, ends-at: CLIMAX]
-PARTH: Something feels wrong.
-PREET: What do you mean?
-PARTH: I don't know.
-PREET: Look behind you.
-PARTH: [upset] AHHH!   ← #CLIMAX - music peaks here
-```
-
-Music needs to know: "I have 15 seconds to build from quiet to peak."
-
-- **Pre-computed:** Total span is known. Calculate build-up curve.
-- **On-the-fly:** Must scan ahead and compute all event durations between start and climax.
-
-#### Ken Burns Effect Spanning a Montage
-
-Slow pan across multiple still images during a narration sequence. Each image's pan rate depends on knowing the total narration duration.
-
----
-
-### The Pattern
-
-| Effect Type | On-the-Fly | Pre-Computed |
-|-------------|------------|--------------|
-| Current event only | ✓ Easy | ✓ Easy |
-| Peek at next event type | ✓ Easy | ✓ Easy |
-| Span 2+ events (need total duration) | Harder — must look-ahead | ✓ Easy |
-| Anticipate many events ahead | Much harder | ✓ Easy |
-
-**Bottom line:** Single-event and next-event effects are easy with both. Multi-event spans favor pre-computed.
-
----
-
 ## On-the-Fly: Angel's Advocate
 
 1. **Simplicity is a principle.** No extra data structure means less to understand, less to maintain, fewer moving parts.
@@ -234,10 +157,6 @@ Slow pan across multiple still images during a narration sequence. Each image's 
 5. **YAGNI (You Aren't Gonna Need It).** We don't currently need timestamp seeking, visual scrubbers, or complex animations. Build what you need now.
 
 6. **Easy to refactor later if needed.** If a compelling feature requires pre-computed, the refactor is straightforward. Not a one-way door.
-
-7. **Avoids seeking complexity.** No state reconstruction, no interpolation math, no audio seeking fiddliness. Just play forward.
-
-8. **Reacts to reality.** Can use actual `audio.onended` events rather than assuming pre-computed durations are perfect.
 
 ---
 
@@ -287,16 +206,6 @@ Slow pan across multiple still images during a narration sequence. Each image's 
 
 5. **Violates "justify existence" principle?** If we don't need the extra capabilities now, why build them?
 
-6. **State reconstruction when seeking.** Jump to event 15? You must rebuild the world: What location are we in? What's each character's emotional state? Is a camera mid-animation? On-the-fly always plays sequentially, so state naturally accumulates — no reconstruction needed.
-
-7. **Interpolation complexity for mid-event scrubbing.** If a slow zoom spans 3 events and you scrub to the middle, you need keyframe animation math: start value, end value, easing curve, percentage complete. You're essentially building an animation engine.
-
-8. **Audio seeking is fiddly.** Web Audio API doesn't have a simple "seek to 2.5s" method. You must: stop current audio, calculate new offset, create new buffer source, start at offset. Can cause clicks/pops at seek points.
-
-9. **Reality drift.** Pre-computed assumes audio plays for *exactly* the computed duration. Browser quirks (sample rate conversions, scheduling delays) can cause actual playback to diverge from the timeline. On-the-fly can react to actual `audio.onended` events.
-
-10. **Floating point accumulation.** If `startTime = sum of all previous durations`, floating point errors can accumulate over hundreds of events. Usually tiny, but worth noting.
-
 ---
 
 ## Future Features Analysis
@@ -328,23 +237,6 @@ For a script-based tool, event-based might actually be the right UX. You're work
 
 ---
 
-## What Each Approach Avoids
-
-### On-the-Fly avoids:
-- State reconstruction logic (always plays sequentially)
-- Interpolation math for mid-event states
-- Audio seeking complexity (just plays start to finish)
-- Timeline/reality drift concerns (reacts to actual audio events)
-- Regeneration step on config changes
-
-### Pre-Computed avoids:
-- O(n) cost for timestamp seeking
-- "Look-ahead" hacks for multi-event animations
-- Recomputing durations repeatedly
-- Uncertainty about total duration
-
----
-
 ## Summary
 
 | If you value... | Choose... |
@@ -362,20 +254,11 @@ For a script-based tool, event-based might actually be the right UX. You're work
 
 1. **Do we actually want timestamp-based navigation?** Or is event-based better for a script tool?
 
-2. **How likely are multi-event spanning animations?** (Single-event and next-event effects work fine with on-the-fly — only animations spanning 2+ events favor pre-computed.)
+2. **How likely are complex animations spanning events?** Camera movements, multi-track audio?
 
-3. **Is the seeking complexity worth it?** Pre-computed enables timestamp scrubbing, but adds state reconstruction, interpolation math, and audio seeking fiddliness.
+3. **Is the "extra data structure" a real cost?** Or is ~20 lines of code negligible?
 
 4. **Which aligns better with our principles?** "Justify existence" vs "future-proofing"?
-
----
-
-## Clarifications From Discussion
-
-- **Cross-fades and single-event effects** are easy with on-the-fly (just peek at next event type, use current duration).
-- **Multi-event spans** (zoom across 3 lines, music build over many events) genuinely favor pre-computed.
-- **Pre-computed has its own costs:** state reconstruction on seek, interpolation complexity, audio API fiddliness, potential reality drift.
-- **Both approaches work for export** via `captureStream()` (real-time recording).
 
 ---
 

@@ -13,8 +13,6 @@ FSL is a custom domain-specific language designed for:
 
 The language prioritizes feeling like writing a screenplay, not programming.
 
-The parser converts FSL scripts into a stream of events that the playback engine consumes. For parser details, see [tools/parser/README.md](../../tools/parser/README.md).
-
 ---
 
 ## First Life vs Future
@@ -234,8 +232,8 @@ These are ideas we might explore later. Nothing official — just possibilities.
 ## Sample Scripts
 
 See `sample-scripts/` for complete examples:
-- `first-life.episode` — All first life syntax demonstrated
-- `future.episode` — Future planned features (not yet functional)
+- `first-life.foreigners` — All first life syntax demonstrated
+- `future.foreigners` — Future planned features (not yet functional)
 
 ---
 

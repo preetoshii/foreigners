@@ -1,0 +1,67 @@
+{
+  "generated": "2025-12-30T20:23:53.018Z",
+  "characters": {
+    "parth": {
+      "states": {
+        "neutral": {
+          "audio": [
+            "gibberish.wav"
+          ],
+          "video": [
+            "back-34.webm",
+            "front-34.webm"
+          ]
+        },
+        "pleased": {
+          "audio": [
+            "gibberish.wav"
+          ],
+          "video": [
+            "back-34.webm",
+            "front-34.webm"
+          ]
+        },
+        "upset": {
+          "audio": [
+            "gibberish.wav"
+          ],
+          "video": [
+            "back-34.webm",
+            "front-34.webm"
+          ]
+        }
+      }
+    },
+    "preet": {
+      "states": {
+        "neutral": {
+          "audio": [
+            "gibberish.wav"
+          ],
+          "video": [
+            "back-34.webm",
+            "front-34.webm"
+          ]
+        },
+        "pleased": {
+          "audio": [
+            "gibberish.wav"
+          ],
+          "video": [
+            "back-34.webm",
+            "front-34.webm"
+          ]
+        },
+        "upset": {
+          "audio": [
+            "gibberish.wav"
+          ],
+          "video": [
+            "back-34.webm",
+            "front-34.webm"
+          ]
+        }
+      }
+    }
+  }
+}
