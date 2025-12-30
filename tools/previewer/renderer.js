@@ -87,35 +87,61 @@ export function createRenderer(canvas) {
     ctx.save();
     
     const centerX = width / 2;
-    const centerY = height / 2;
     
-    // Font sizes for 1080p - will scale with canvas
-    const fontSize = currentState.isSubtitleEmpty ? 36 : 72;
-    const lineHeight = currentState.isSubtitleEmpty ? 48 : 96;
-    
-    // Subtitle text only (no speaker name - we'll see the actual character)
-    ctx.font = currentState.isSubtitleEmpty 
-      ? `400 ${fontSize}px "Instrument Sans", system-ui, sans-serif`
-      : `600 ${fontSize}px "Instrument Sans", system-ui, sans-serif`;
-    ctx.fillStyle = currentState.isSubtitleEmpty ? '#666' : '#fff';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    
-    // Text shadow for readability
-    if (!currentState.isSubtitleEmpty) {
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-      ctx.shadowBlur = 40;
-      ctx.shadowOffsetY = 4;
+    // Empty/placeholder subtitles stay centered
+    if (currentState.isSubtitleEmpty) {
+      const centerY = height / 2;
+      const fontSize = 36;
+      const lineHeight = 48;
+      
+      ctx.font = `400 ${fontSize}px "Instrument Sans", system-ui, sans-serif`;
+      ctx.fillStyle = '#666';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      const maxWidth = width * 0.8;
+      const lines = wrapText(currentState.subtitle, maxWidth);
+      const totalHeight = lines.length * lineHeight;
+      const startY = centerY - totalHeight / 2 + lineHeight / 2;
+      
+      lines.forEach((line, i) => {
+        ctx.fillText(line, centerX, startY + i * lineHeight);
+      });
+      
+      ctx.restore();
+      return;
     }
     
+    // Movie-style subtitles: bottom of screen with outline
+    const fontSize = 52;
+    const lineHeight = 64;
+    const bottomMargin = height * 0.10; // 10% from bottom
+    
+    // Standard subtitle font stack (Arial is the most common for movies/TV)
+    ctx.font = `500 ${fontSize}px Arial, Helvetica, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    
     // Word wrap for long subtitles
-    const maxWidth = width * 0.8;
+    const maxWidth = width * 0.85;
     const lines = wrapText(currentState.subtitle, maxWidth);
     const totalHeight = lines.length * lineHeight;
-    const startY = centerY - totalHeight / 2 + lineHeight / 2;
+    const startY = height - bottomMargin - totalHeight + lineHeight;
     
+    // Draw each line with outline (stroke first, then fill)
     lines.forEach((line, i) => {
-      ctx.fillText(line, centerX, startY + i * lineHeight);
+      const y = startY + i * lineHeight;
+      
+      // Black outline - movie subtitle style
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 5;
+      ctx.lineJoin = 'round';
+      ctx.miterLimit = 2;
+      ctx.strokeText(line, centerX, y);
+      
+      // White fill
+      ctx.fillStyle = '#fff';
+      ctx.fillText(line, centerX, y);
     });
     
     ctx.restore();

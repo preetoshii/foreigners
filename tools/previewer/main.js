@@ -55,7 +55,7 @@ const debugState = document.getElementById('debug-state');
 
 // Overlay visibility
 let overlayTimeout = null;
-const OVERLAY_HIDE_DELAY = 1500; // 1.5 seconds
+const OVERLAY_HIDE_DELAY = 400; // Quick fade after play starts
 
 // LocalStorage keys for persistence
 const STORAGE_EPISODE = 'foreigners_lastEpisode';
