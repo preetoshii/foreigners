@@ -39,6 +39,7 @@ const timeDisplay = document.getElementById('time-display');
 const eventDisplay = document.getElementById('event-display');
 const drawerToggle = document.getElementById('drawer-toggle');
 const drawer = document.getElementById('drawer');
+const drawerHandle = document.getElementById('drawer-handle');
 const drawerClose = document.getElementById('drawer-close');
 const drawerTabs = document.querySelectorAll('.drawer-tabs button');
 const scriptContent = document.getElementById('script-content');
@@ -97,6 +98,7 @@ async function init() {
   progressTrack.addEventListener('click', handleProgressClick);
   drawerToggle.addEventListener('click', toggleDrawer);
   drawerClose.addEventListener('click', () => drawer.classList.remove('open'));
+  drawerHandle.addEventListener('mousedown', startResize);
   debugToggle.addEventListener('click', toggleDebug);
   
   drawerTabs.forEach(tab => {
@@ -356,6 +358,35 @@ function toggleDrawer() {
 
 function toggleDebug() {
   debugBar.classList.toggle('visible');
+}
+
+// ===== Drawer Resize =====
+let isResizing = false;
+let startY = 0;
+let startHeight = 0;
+
+function startResize(e) {
+  isResizing = true;
+  startY = e.clientY;
+  startHeight = drawer.offsetHeight;
+  drawer.classList.add('dragging');
+  document.addEventListener('mousemove', resize);
+  document.addEventListener('mouseup', stopResize);
+  e.preventDefault();
+}
+
+function resize(e) {
+  if (!isResizing) return;
+  const delta = startY - e.clientY;
+  const newHeight = Math.min(Math.max(150, startHeight + delta), window.innerHeight - 100);
+  drawer.style.height = newHeight + 'px';
+}
+
+function stopResize() {
+  isResizing = false;
+  drawer.classList.remove('dragging');
+  document.removeEventListener('mousemove', resize);
+  document.removeEventListener('mouseup', stopResize);
 }
 
 function updateDebugBar(location, character, state) {

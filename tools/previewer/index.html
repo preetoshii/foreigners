@@ -360,15 +360,41 @@
       bottom: 0;
       left: 0;
       right: 0;
+      height: 300px;
       background: var(--surface);
       border-top: 1px solid var(--border);
       transform: translateY(100%);
       transition: transform 0.3s ease;
-      max-height: 50vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       z-index: 100;
+    }
+
+    .drawer-handle {
+      height: 6px;
+      cursor: ns-resize;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .drawer-handle::after {
+      content: '';
+      width: 40px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .drawer-handle:hover::after {
+      background: #444;
+    }
+
+    .drawer.dragging {
+      transition: none;
     }
 
     .drawer.open {
@@ -415,32 +441,34 @@
 
     .drawer-content {
       flex: 1;
-      overflow: auto;
-      padding: 1rem 1.5rem;
-      /* Hide scrollbar but keep scroll functionality */
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
-    }
-
-    .drawer-content::-webkit-scrollbar {
-      display: none; /* Chrome/Safari */
+      overflow: hidden;
+      padding: 0 1.5rem 1rem;
+      position: relative;
     }
 
     .drawer-content pre {
+      position: absolute;
+      top: 0;
+      left: 1.5rem;
+      right: 1.5rem;
+      bottom: 1rem;
       font-family: 'SF Mono', 'Consolas', monospace;
       font-size: 0.8rem;
       color: var(--text-dim);
       background: transparent;
       border: none;
-      width: 100%;
       line-height: 1.6;
       white-space: pre-wrap;
       word-wrap: break-word;
       margin: 0;
-      /* Hide scrollbar but keep scroll */
       overflow: auto;
+      /* Hide scrollbar but keep scroll */
       scrollbar-width: none;
       -ms-overflow-style: none;
+    }
+
+    .drawer-content pre::-webkit-scrollbar {
+      display: none;
     }
 
     .drawer-content pre::-webkit-scrollbar {
@@ -557,6 +585,7 @@
   </main>
 
   <div class="drawer" id="drawer">
+    <div class="drawer-handle" id="drawer-handle"></div>
     <div class="drawer-header">
       <div class="drawer-tabs">
         <button class="active" data-tab="script">Script</button>
