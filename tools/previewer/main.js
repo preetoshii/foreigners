@@ -32,6 +32,7 @@ const previewContainer = document.getElementById('preview-container');
 const previewCanvas = document.getElementById('preview-canvas');
 const overlay = document.getElementById('overlay');
 const transport = document.querySelector('.transport');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
 const progressFill = document.getElementById('progress-fill');
 const progressDots = document.getElementById('progress-dots');
 const progressTrack = document.getElementById('progress-track');
@@ -100,6 +101,7 @@ async function init() {
   drawerClose.addEventListener('click', () => drawer.classList.remove('open'));
   drawerHandle.addEventListener('mousedown', startResize);
   debugToggle.addEventListener('click', toggleDebug);
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
   
   drawerTabs.forEach(tab => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -344,6 +346,9 @@ function handleKeydown(e) {
     case 'Slash':
       toggleDebug();
       break;
+    case 'KeyF':
+      toggleFullscreen();
+      break;
     case 'Escape':
       drawer.classList.remove('open');
       break;
@@ -358,6 +363,24 @@ function toggleDrawer() {
 
 function toggleDebug() {
   debugBar.classList.toggle('visible');
+}
+
+function toggleFullscreen() {
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    // Exit fullscreen
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  } else {
+    // Enter fullscreen
+    if (previewContainer.requestFullscreen) {
+      previewContainer.requestFullscreen();
+    } else if (previewContainer.webkitRequestFullscreen) {
+      previewContainer.webkitRequestFullscreen();
+    }
+  }
 }
 
 // ===== Drawer Resize =====
