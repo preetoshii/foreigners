@@ -87,7 +87,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: opacity 0.15s;
+      transition: opacity 0.1s;
     }
 
     .load-btn:hover {
@@ -138,39 +138,34 @@
       bottom: 0;
       pointer-events: none;
       opacity: 1;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.15s ease-out;
     }
 
     .overlay.hidden {
       opacity: 0;
+      pointer-events: none !important;
     }
 
-    .overlay.hidden .transport,
-    .overlay.hidden .progress-container {
-      pointer-events: none;
+    .overlay.hidden * {
+      pointer-events: none !important;
     }
 
-    /* Gradient overlays for better visibility */
+    /* Dark scrim when controls visible */
     .overlay::before {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 80px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
       pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.15s ease-out;
     }
 
-    .overlay::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 120px;
-      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-      pointer-events: none;
+    .overlay.hidden::before {
+      opacity: 0;
     }
 
     /* ===== Transport Controls (Centered) ===== */
@@ -179,7 +174,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      display: flex;
+      display: none; /* Hidden until episode loaded */
       align-items: center;
       justify-content: center;
       gap: 1.5rem;
@@ -187,16 +182,19 @@
       z-index: 2;
     }
 
+    .transport.visible {
+      display: flex;
+    }
+
     .transport button {
       width: 48px;
       height: 48px;
       border: none;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.6);
       color: var(--text);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background 0.1s, transform 0.1s;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -209,7 +207,7 @@
     }
 
     .transport button:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.8);
       transform: scale(1.1);
     }
 
@@ -222,8 +220,7 @@
     .transport .play-btn {
       width: 72px;
       height: 72px;
-      background: rgba(255, 255, 255, 0.95);
-      color: var(--bg);
+      background: rgba(0, 0, 0, 0.7);
     }
 
     .transport .play-btn svg {
@@ -232,7 +229,7 @@
     }
 
     .transport .play-btn:hover {
-      background: rgba(255, 255, 255, 1);
+      background: rgba(0, 0, 0, 0.85);
       transform: scale(1.1);
     }
 
@@ -253,7 +250,7 @@
       border-radius: 2px;
       position: relative;
       cursor: pointer;
-      transition: height 0.15s;
+      transition: height 0.1s;
     }
 
     .progress-container:hover .progress-track {
@@ -288,7 +285,7 @@
       transform: translate(-50%, -50%);
       pointer-events: auto;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background 0.1s, transform 0.1s, opacity 0.1s;
       opacity: 0;
     }
 
@@ -349,7 +346,7 @@
       cursor: pointer;
       padding: 0.5rem;
       opacity: 0.5;
-      transition: opacity 0.15s;
+      transition: opacity 0.1s;
     }
 
     .drawer-toggle:hover {

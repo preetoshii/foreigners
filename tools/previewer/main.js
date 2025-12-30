@@ -31,6 +31,7 @@ const nextBtn = document.getElementById('next-btn');
 const previewContainer = document.getElementById('preview-container');
 const previewCanvas = document.getElementById('preview-canvas');
 const overlay = document.getElementById('overlay');
+const transport = document.querySelector('.transport');
 const progressFill = document.getElementById('progress-fill');
 const progressDots = document.getElementById('progress-dots');
 const progressTrack = document.getElementById('progress-track');
@@ -128,7 +129,7 @@ function hideOverlay() {
 function hideOverlayDelayed() {
   clearTimeout(overlayTimeout);
   if (isPlaying) {
-    overlayTimeout = setTimeout(hideOverlay, 300);
+    overlayTimeout = setTimeout(hideOverlay, 150);
   }
 }
 
@@ -196,10 +197,11 @@ async function handleLoad() {
     // Update timeline display
     timelineContent.textContent = JSON.stringify(timeline, null, 2);
 
-    // Enable controls
+    // Enable and show controls
     playBtn.disabled = false;
     prevBtn.disabled = false;
     nextBtn.disabled = false;
+    transport.classList.add('visible');
 
     // Create event dots
     createEventDots();
