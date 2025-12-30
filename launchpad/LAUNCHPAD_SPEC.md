@@ -174,7 +174,7 @@ Why: Just serves files. That's it. No custom server code needed — use `npx ser
   Draws everything onto the screen — background first, then characters on top, then subtitles on top of that. Layers them like a collage. Every frame, it paints the whole picture fresh.
 
 - **Web Audio** — *The DJ.*
-  Plays the gibberish sounds at the right time, synced to the dialogue. Picks the right audio clips, strings them together, and makes sure they match the timing of the subtitles.
+  Plays the gibberish sounds at the right time, synced to the dialogue. Picks a random portion of the character's audio file and plays it for the estimated duration.
 
 ---
 
@@ -193,12 +193,14 @@ Why: Just serves files. That's it. No custom server code needed — use `npx ser
 4. Browser re-renders from the beginning
 
 **During playback:**
-1. Playback engine reads next line from parsed script
-2. Engine determines: which character, what emotion, what text
-3. Compositor draws: background → non-speaker (blurred) → speaker → subtitle
-4. Audio plays: selects gibberish clips to fill estimated duration
-5. When audio completes → advance to next line
-6. Repeat until end of script
+1. Playback engine reads next event from parsed script
+2. Engine determines: which character, what state, what text
+3. Engine estimates duration from text length (word count × constant)
+4. Engine picks random start point in audio/video (using seeded RNG)
+5. Compositor draws: background → non-speaker (blurred) → speaker → subtitle
+6. Audio plays: random portion of the state's audio file for estimated duration
+7. When audio completes → advance to next event
+8. Repeat until end of script
 
 ---
 
@@ -211,16 +213,19 @@ A **character** is a digital puppet — a collection of video and audio assets t
 **Video assets:**
 - Recorded against a removable backdrop (green screen or similar)
 - Silent footage of the character "speaking" — mouth moving, body expressing
-- Organized by **emotion** (neutral, happy, sad, angry, etc.)
-- Each emotion has **angles** (front-34, back-34) for different shot compositions
+- Organized by **state** (neutral, happy, sad, angry, etc.)
+- Each state has **angles** (front-34, back-34) for different shot compositions
+- **One long continuous video per state/angle** — the engine plays random portions based on dialogue duration
 - WebM format with alpha channel for transparency
 
 **Audio assets:**
 - Gibberish "language" unique to the character
-- Phrases/sounds organized by emotion
-- Short clips that can be sequenced to fill any dialogue length
+- Organized by state
+- **One long continuous recording per state** — the engine plays random portions based on text length
+- Duration is estimated from word count; a random start point is chosen (seeded for determinism)
+- Hard cuts at start/end are intentional — constraints as style
 
-**Key property:** A character can exist with minimal assets (one emotion, a handful of sounds) and still be fully functional. The system discovers capabilities from what exists in the folders.
+**Key property:** A character can exist with minimal assets (one state, one audio file) and still be fully functional. The system discovers capabilities from what exists in the folders.
 
 ### Locations
 
@@ -360,28 +365,17 @@ assets/
     mario/
       states/
         happy/
-          front-34/
-            video.webm      # or multiple variants: smile-1.webm, smile-2.webm
-          back-34/
-            video.webm
-          audio/
-            phrase-1.mp3
-            phrase-2.mp3
+          front-34.webm     # One long continuous video
+          back-34.webm      # One long continuous video
+          audio.mp3         # One long continuous audio
         sad/
-          front-34/
-            video.webm
-          back-34/
-            video.webm
-          audio/
-            phrase-1.mp3
+          front-34.webm
+          back-34.webm
+          audio.mp3
         angry/
-          front-34/
-            video.webm
-          back-34/
-            video.webm
-          audio/
-            phrase-1.mp3
-            phrase-2.mp3
+          front-34.webm
+          back-34.webm
+          audio.mp3
     luigi/
       states/
         ...
@@ -408,9 +402,9 @@ assets/
 ```
 
 **Rules:**
-- Character states (emotions) are discovered from folder names
-- Each state contains angle folders (front-34, back-34) and an audio folder
-- Multiple files in a folder = variants (randomly selected unless specified)
+- Character states are discovered from folder names
+- Each state contains one video file per angle and one audio file
+- One long continuous recording per file — engine plays random portions
 - Location backgrounds are perspectives (left/right), not single images
 - Exposition shots are per-location, jingles are global
 - Missing assets don't break the system — they just limit options
@@ -503,11 +497,13 @@ We'll figure that out when we get there. First, let's get the foundations solid.
 
 1. **OTS shot layout:** Exact positioning, scale, blur amount for speaker vs. non-speaker. Will figure out through experimentation once we have real assets.
 
-2. **Gibberish timing algorithm:** Exact formula for text length → audio duration. Start simple (word count × constant), refine based on how it feels.
+2. **Asset consistency:** How much visual consistency is needed across recordings? Trust design instincts for now.
 
-3. **Asset consistency:** How much visual consistency is needed across recordings? Trust design instincts for now.
+3. **Character positioning:** For first life, Mario is always camera-left, Luigi is always camera-right. Future: Should this be configurable per-scene? Per-script?
 
-4. **Character positioning:** For first life, Mario is always camera-left, Luigi is always camera-right. Future: Should this be configurable per-scene? Per-script?
+## Resolved Questions
+
+1. **Gibberish timing algorithm:** Word count × ~350ms per word. Pick random start point in the continuous audio file (seeded RNG), play for estimated duration. Hard cuts are the aesthetic.
 
 ---
 
