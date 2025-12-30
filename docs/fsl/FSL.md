@@ -173,29 +173,31 @@ When location changes, the engine will automatically show:
 ### Shot Types
 
 ```fsl
-mario: [happy] [ots] Hey, what's up?
+mario: [happy] [shot: ots] Hey, what's up?
 luigi: [neutral] Not much.
 
-mario: [frustrated] [two-shot] This affects both of us.
+mario: [frustrated] [shot: two-shot] This affects both of us.
 luigi: [sad] I know.
 
-mario: [emotional] [single] I just... I can't do this anymore.
+mario: [emotional] [shot: single] I just... I can't do this anymore.
 ```
 
-Shot types work like states — inline, can appear mid-line, sticky until changed:
+Shot types are inline (like states), can appear mid-line, and are sticky until changed:
 
 ```fsl
-mario: [happy] [ots] Hey, what's up? [single] Listen, I need to tell you something.
+mario: [happy] [shot: ots] Hey, what's up? [shot: single] Listen, I need to tell you something.
 ```
 
 This cuts from OTS to single shot mid-line while Mario is speaking.
 
 **Shot types:**
-- `[ots]` — Over-the-shoulder (first life default)
-- `[two-shot]` — Both characters visible in profile, wide background
-- `[single]` — Just the speaker, zoomed in
+- `[shot: ots]` — Over-the-shoulder (first life default)
+- `[shot: two-shot]` — Both characters visible in profile, wide background
+- `[shot: single]` — Just the speaker, zoomed in
 
-*Note: `[camera:]` block directives are reserved for future movement commands (pan, zoom, dolly).*
+The `shot:` prefix distinguishes shot tags from state tags, making parsing unambiguous.
+
+*Note: `[camera:]` is reserved for future movement commands (pan, zoom, dolly).*
 
 ### Scene Types
 
@@ -251,7 +253,7 @@ Explicit timing pause.
 | `@location` | Location | `@rainbow-cafe` | ✅ (single) |
 | `character: text` | Dialogue | `mario: Hello!` | ✅ |
 | `[state]` | Inline tag | `[happy]` | ✅ |
-| `[shot]` | Inline tag | `[ots]`, `[single]` | ❌ Future |
+| `[shot: X]` | Inline tag | `[shot: ots]` | ❌ Future |
 | `...` | Silent beat | `mario: ...` | ✅ |
 | `[music: X]` | Block directive | `[music: tense]` | ❌ Future |
 | `[title-card]` | Block directive | `[title-card]` | ❌ Future |
