@@ -83,11 +83,13 @@ mario: [curious] What's wrong? [concerned] You look upset.
 ### Silent Beats
 
 ```fsl
-mario: [sad] ...
-luigi: [thoughtful] ...
+mario: [sad] [...]
+luigi: [thoughtful] [...]
 ```
 
-Use `...` as the dialogue text for a silent moment. The character displays their state but doesn't speak (no audio, no subtitle text).
+Use `[...]` for a silent moment. The character displays their state but doesn't speak (no audio, no subtitle text).
+
+This avoids confusion with `...` appearing naturally in dialogue (e.g., "I don't know...").
 
 ---
 
@@ -100,7 +102,7 @@ Use `...` as the dialogue text for a silent moment. The character displays their
 | `@location-name` | Set location | Yes (once, at start) |
 | `character: text` | Dialogue line | Yes |
 | `[state]` | State tag (inline) | No (defaults to neutral) |
-| `...` | Silent beat (as dialogue text) | No |
+| `[...]` | Silent beat | No |
 
 ---
 
@@ -225,7 +227,7 @@ These are ideas we might explore later. Nothing official — just possibilities.
 | `@location` | Location | `@rainbow-cafe` |
 | `character: text` | Dialogue | `mario: Hello!` |
 | `[state]` | Inline tag | `[happy]` |
-| `...` | Silent beat | `mario: ...` |
+| `[...]` | Silent beat | `mario: [...]` |
 
 ---
 
