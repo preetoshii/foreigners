@@ -65,29 +65,29 @@ Format: `character: text`
 
 The character name must match a character folder in `assets/characters/`. Case-sensitive.
 
-### Emotion Tags
+### State Tags
 
 ```fsl
-mario: [[happy]] Hey Luigi!
-luigi: [[sad]] I've been better.
-mario: [[curious]] What's wrong? [[concerned]] You look upset.
+mario: [happy] Hey Luigi!
+luigi: [sad] I've been better.
+mario: [curious] What's wrong? [concerned] You look upset.
 ```
 
-- `[[emotion]]` sets the character's emotional state
+- `[state]` sets the character's state (emotional expression)
 - Can appear anywhere in the line
-- Multiple tags in one line = emotion shifts mid-dialogue
-- Emotions are **sticky** — last emotion persists until changed
+- Multiple tags in one line = state shifts mid-dialogue
+- States are **sticky** — last state persists until changed
 
-**Note:** The emotion name must match a state folder in the character's `states/` directory (e.g., `assets/characters/mario/states/happy/`).
+**Note:** The state name must match a state folder in the character's `states/` directory (e.g., `assets/characters/mario/states/happy/`).
 
 ### Silent Beats
 
 ```fsl
-mario: [[sad]] ...
-luigi: [[thoughtful]] ...
+mario: [sad] ...
+luigi: [thoughtful] ...
 ```
 
-Use `...` as the dialogue text for a silent moment. The character displays their emotion but doesn't speak (no audio, no subtitle text).
+Use `...` as the dialogue text for a silent moment. The character displays their state but doesn't speak (no audio, no subtitle text).
 
 ---
 
@@ -99,41 +99,41 @@ Use `...` as the dialogue text for a silent moment. The character displays their
 | `seed: NUMBER` | Set random seed | No |
 | `@location-name` | Set location | Yes (once, at start) |
 | `character: text` | Dialogue line | Yes |
-| `[[emotion]]` | Emotion tag (inline) | No (defaults to neutral) |
+| `[state]` | State tag (inline) | No (defaults to neutral) |
 | `...` | Silent beat (as dialogue text) | No |
 
 ---
 
 ## Behavior Rules
 
-### Emotion Stickiness
+### State Stickiness
 
-If a line has no `[[emotion]]` tag, the character continues with their last used emotion.
+If a line has no `[state]` tag, the character continues with their last used state.
 
 ```fsl
-mario: [[happy]] Great to see you!
+mario: [happy] Great to see you!
 mario: How have you been?        # Still happy
-mario: [[curious]] What's new?   # Now curious
+mario: [curious] What's new?     # Now curious
 mario: Tell me everything.       # Still curious
 ```
 
-### Default Emotion
+### Default State
 
-If a character has never had an emotion specified, they default to `neutral`.
+If a character has never had a state specified, they default to `neutral`.
 
 ```fsl
 @rainbow-cafe
-mario: Hey there.                # Mario is neutral (no emotion set yet)
-mario: [[happy]] Good to see you!  # Now Mario is happy
-luigi: What's up?                # Luigi is neutral (his first line, no emotion set)
+mario: Hey there.                # Mario is neutral (no state set yet)
+mario: [happy] Good to see you!  # Now Mario is happy
+luigi: What's up?                # Luigi is neutral (his first line, no state set)
 ```
 
-### Mid-Line Emotion Changes
+### Mid-Line State Changes
 
-When multiple `[[emotion]]` tags appear in one line, the emotion shifts at that point in the dialogue:
+When multiple `[state]` tags appear in one line, the state shifts at that point in the dialogue:
 
 ```fsl
-luigi: [[calm]] I thought about it and [[angry]] I'm furious!
+luigi: [calm] I thought about it and [angry] I'm furious!
 ```
 
 The character starts calm, then shifts to angry mid-line. The subtitle and audio reflect this shift.
@@ -158,10 +158,10 @@ These features are **not part of first life** but show where the language will g
 
 ```fsl
 @rainbow-cafe
-mario: [[happy]] Let's go to the bridge!
+mario: [happy] Let's go to the bridge!
 
 @bridge
-mario: [[peaceful]] Ah, here we are.
+mario: [peaceful] Ah, here we are.
 ```
 
 When location changes, the engine will automatically show:
@@ -173,25 +173,29 @@ When location changes, the engine will automatically show:
 ### Shot Types
 
 ```fsl
-[shot: ots]
-mario: [[happy]] Hey, what's up?
+mario: [happy] [ots] Hey, what's up?
+luigi: [neutral] Not much.
 
-[shot: two-shot]
-mario: [[frustrated]] This affects both of us.
-luigi: [[sad]] I know.
+mario: [frustrated] [two-shot] This affects both of us.
+luigi: [sad] I know.
 
-[shot: single]
-mario: [[emotional]] I just... I can't do this anymore.
+mario: [emotional] [single] I just... I can't do this anymore.
 ```
 
+Shot types work like states — inline, can appear mid-line, sticky until changed:
+
+```fsl
+mario: [happy] [ots] Hey, what's up? [single] Listen, I need to tell you something.
+```
+
+This cuts from OTS to single shot mid-line while Mario is speaking.
+
 **Shot types:**
-- `ots` — Over-the-shoulder (first life default)
-- `two-shot` — Both characters visible in profile, wide background
-- `single` — Just the speaker, zoomed in
+- `[ots]` — Over-the-shoulder (first life default)
+- `[two-shot]` — Both characters visible in profile, wide background
+- `[single]` — Just the speaker, zoomed in
 
-Shot types are **block directives** — set once, persists until changed.
-
-*Note: `[shot:]` controls framing. `[camera:]` is reserved for future movement commands (pan, zoom, dolly).*
+*Note: `[camera:]` block directives are reserved for future movement commands (pan, zoom, dolly).*
 
 ### Scene Types
 
@@ -209,7 +213,7 @@ style: fade
 ### Specific Variants
 
 ```fsl
-mario: [[angry:crazy-looking]] I'VE HAD ENOUGH!
+mario: [angry:crazy-looking] I'VE HAD ENOUGH!
 ```
 
 Select a specific variant instead of random selection.
@@ -246,27 +250,11 @@ Explicit timing pause.
 | `seed: NUMBER` | Seed | `seed: 42069` | ✅ |
 | `@location` | Location | `@rainbow-cafe` | ✅ (single) |
 | `character: text` | Dialogue | `mario: Hello!` | ✅ |
-| `[[emotion]]` | Inline modifier | `[[happy]]` | ✅ |
+| `[state]` | Inline tag | `[happy]` | ✅ |
+| `[shot]` | Inline tag | `[ots]`, `[single]` | ❌ Future |
 | `...` | Silent beat | `mario: ...` | ✅ |
-| `[shot: X]` | Block directive | `[shot: two-shot]` | ❌ Future |
 | `[music: X]` | Block directive | `[music: tense]` | ❌ Future |
 | `[title-card]` | Block directive | `[title-card]` | ❌ Future |
-
----
-
-## Terminology Note
-
-In FSL, you write `[[emotion]]` tags like `[[happy]]`, `[[sad]]`, `[[angry]]`.
-
-In the asset folder structure, these are stored under `states/`:
-```
-assets/characters/mario/states/happy/
-```
-
-**"Emotion"** is the user-facing term (what you write in scripts).
-**"State"** is the asset organization term (folder names).
-
-They refer to the same thing.
 
 ---
 
@@ -281,8 +269,8 @@ See `sample-scripts/` for complete examples:
 
 *To be resolved through building and iteration:*
 
-1. **Exact timing of mid-line emotion shifts** — Where does the subtitle split? How does audio transition?
-2. **Escape sequences** — What if dialogue needs literal `[[` or `@`?
+1. **Exact timing of mid-line state shifts** — Where does the subtitle split? How does audio transition?
+2. **Escape sequences** — What if dialogue needs literal `[` or `@`?
 3. **Character aliases** — Shorthand for long character names?
 4. **Include/import** — Splitting long episodes across files?
 
