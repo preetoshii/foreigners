@@ -7,12 +7,7 @@
  */
 
 import { createRandom } from './seeded-random.js';
-
-// Configuration
-const MS_PER_WORD = 300;        // Average speaking rate
-const MS_PER_CHARACTER = 50;    // For very short text
-const MIN_DURATION_MS = 500;    // Minimum duration for any text
-const PAUSE_DURATION_MS = 800;  // Default pause duration
+import { config } from './config.js';
 
 /**
  * Estimate how long a piece of text should take to "speak"
@@ -20,14 +15,15 @@ const PAUSE_DURATION_MS = 800;  // Default pause duration
 function estimateDuration(text) {
   const words = text.trim().split(/\s+/).filter(w => w.length > 0);
   
-  if (words.length === 0) return MIN_DURATION_MS;
+  if (words.length === 0) return config.minDurationMs;
   
   // Use word count for longer text, character count for short text
-  const wordBasedMs = words.length * MS_PER_WORD;
-  const charBasedMs = text.length * MS_PER_CHARACTER;
+  const wordBasedMs = words.length * config.msPerWord;
+  const charBasedMs = text.length * config.msPerCharacter;
   
-  // Use whichever is larger, with a minimum
-  return Math.max(MIN_DURATION_MS, Math.max(wordBasedMs, charBasedMs));
+  // Use whichever is larger, with a minimum, then apply multiplier
+  const baseDuration = Math.max(config.minDurationMs, Math.max(wordBasedMs, charBasedMs));
+  return baseDuration * config.durationMultiplier;
 }
 
 /**
@@ -90,6 +86,7 @@ export async function generateTimeline(parsed, manifest, audioManager) {
   
   // Second pass: generate timeline with timings
   let currentTime = 0;
+  let lastSpeaker = null;
   const timeline = [];
   
   for (const event of events) {
@@ -97,6 +94,12 @@ export async function generateTimeline(parsed, manifest, audioManager) {
     
     switch (event.type) {
       case 'text': {
+        // Add speaker gap if speaker changed
+        if (lastSpeaker !== null && lastSpeaker !== event.character) {
+          currentTime += config.speakerGapMs;
+        }
+        lastSpeaker = event.character;
+        
         // Compute duration from text length
         entry.duration = estimateDuration(event.text);
         
@@ -118,13 +121,14 @@ export async function generateTimeline(parsed, manifest, audioManager) {
       
       case 'pause': {
         // Use explicit duration if provided, otherwise default
-        entry.duration = event.duration || PAUSE_DURATION_MS;
+        entry.duration = event.duration || config.pauseDurationMs;
         break;
       }
       
       case 'location': {
-        // Location changes are instant
-        entry.duration = 0;
+        // Location changes can have configurable duration
+        entry.duration = config.locationDurationMs;
+        lastSpeaker = null; // Reset speaker context on location change
         break;
       }
       
