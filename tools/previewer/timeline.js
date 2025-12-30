@@ -79,6 +79,7 @@ export async function generateTimeline(parsed, manifest, audioManager) {
   // Second pass: generate timeline with timings
   let currentTime = 0;
   let lastSpeaker = null;
+  let lastState = null;
   const timeline = [];
   
   for (const event of events) {
@@ -86,11 +87,19 @@ export async function generateTimeline(parsed, manifest, audioManager) {
     
     switch (event.type) {
       case 'text': {
-        // Add speaker gap if speaker changed
+        const eventState = event.state || 'neutral';
+        
+        // Add gap if speaker or state changed
         if (lastSpeaker !== null && lastSpeaker !== event.character) {
+          // Different speaker
           currentTime += config.speakerGapMs;
+        } else if (lastSpeaker === event.character && lastState !== null && lastState !== eventState) {
+          // Same speaker, different state
+          currentTime += config.stateChangeGapMs;
         }
+        
         lastSpeaker = event.character;
+        lastState = eventState;
         
         // Compute duration from text length
         entry.duration = estimateDuration(event.text);
@@ -120,7 +129,8 @@ export async function generateTimeline(parsed, manifest, audioManager) {
       case 'location': {
         // Location changes can have configurable duration
         entry.duration = config.locationDurationMs;
-        lastSpeaker = null; // Reset speaker context on location change
+        lastSpeaker = null; // Reset context on location change
+        lastState = null;
         break;
       }
       

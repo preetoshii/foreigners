@@ -426,25 +426,25 @@
       display: none; /* Chrome/Safari */
     }
 
-    .drawer-content pre,
-    .drawer-content textarea {
+    .drawer-content pre {
       font-family: 'SF Mono', 'Consolas', monospace;
       font-size: 0.8rem;
       color: var(--text-dim);
       background: transparent;
       border: none;
       width: 100%;
-      resize: none;
       line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin: 0;
+      /* Hide scrollbar but keep scroll */
+      overflow: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
-    .drawer-content textarea {
-      min-height: 200px;
-    }
-
-    .drawer-content textarea:focus {
-      outline: none;
-      color: var(--text);
+    .drawer-content pre::-webkit-scrollbar {
+      display: none;
     }
 
     /* ===== Debug Bar ===== */
@@ -565,7 +565,7 @@
       <button class="drawer-close" id="drawer-close">×</button>
     </div>
     <div class="drawer-content">
-      <textarea id="script-content" placeholder="FSL script will appear here..."></textarea>
+      <pre id="script-content">Select an episode to view script...</pre>
       <pre id="timeline-content" style="display:none;">Timeline will appear here...</pre>
     </div>
   </div>

@@ -212,7 +212,7 @@ async function handleLoad() {
     if (!response.ok) throw new Error('Episode not found');
     
     currentScript = await response.text();
-    scriptContent.value = currentScript;
+    scriptContent.textContent = currentScript;
 
     // Parse the script
     const parsed = parse(currentScript);

@@ -19,8 +19,10 @@ export const config = {
   pauseDurationMs: 2000,
   
   // Gap when speaker changes (ms)
-  // Does NOT apply between consecutive lines from same speaker
   speakerGapMs: 500,
+  
+  // Gap when same speaker changes emotional state (ms)
+  stateChangeGapMs: 200,
   
   // ===== Location Changes =====
   
