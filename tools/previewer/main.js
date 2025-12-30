@@ -339,6 +339,7 @@ function handleKeydown(e) {
       toggleDrawer();
       break;
     case 'Backslash':
+    case 'Slash':
       toggleDebug();
       break;
     case 'Escape':
