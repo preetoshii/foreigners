@@ -89,9 +89,9 @@ async function init() {
     isSubtitleEmpty: true,
   });
 
-  // Load manifest
+  // Load manifest (cache-bust to pick up asset changes)
   try {
-    const response = await fetch('../../assets/manifest.json');
+    const response = await fetch(`../../assets/manifest.json?t=${Date.now()}`);
     manifest = await response.json();
   } catch (e) {
     console.error('Failed to load manifest:', e);
@@ -231,8 +231,8 @@ async function handleLoad() {
   renderer.setState({ subtitle: 'Loading...', isSubtitleEmpty: true });
 
   try {
-    // Fetch the episode file
-    const response = await fetch(`../../episodes/${filename}`);
+    // Fetch the episode file (cache-bust to pick up script changes)
+    const response = await fetch(`../../episodes/${filename}?t=${Date.now()}`);
     if (!response.ok) throw new Error('Episode not found');
     
     currentScript = await response.text();

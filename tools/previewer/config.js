@@ -19,7 +19,7 @@ export const config = {
   pauseDurationMs: 2000,
   
   // Gap when speaker changes (ms)
-  speakerGapMs: 500,
+  speakerGapMs: 520,
   
   // Gap when same speaker changes emotional state (ms)
   stateChangeGapMs: 200,
@@ -33,6 +33,6 @@ export const config = {
   
   // Micro-fade duration at start/end of audio clips (ms)
   // Helps smooth any remaining clicks after energy detection
-  audioFadeMs: 100,
+  audioFadeMs: 60,
 };
 

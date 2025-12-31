@@ -27,7 +27,7 @@ python3 -m http.server 8001
 node tools/generate-manifest.js
 ```
 
-## Principles (Concise)
+## Guiding Dev Principles (use as guidance, not gospel)
 
 1. **Justify existence** — Build only what serves the goal. No "just in case."
 2. **Chosen flexibility** — Hardcode unless you can name the future change.

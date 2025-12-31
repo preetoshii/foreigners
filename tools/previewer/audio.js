@@ -10,7 +10,7 @@
 import { config } from './config.js';
 
 // Energy analysis config
-const ENERGY_WINDOW_MS = 100;    // Analyze in 100ms windows
+const ENERGY_WINDOW_MS = 10;    // Analyze in 100ms windows
 const ENERGY_THRESHOLD = 0.01;  // RMS below this = low energy (tune as needed)
 
 export function createAudioManager() {
