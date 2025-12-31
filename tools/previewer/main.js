@@ -57,12 +57,17 @@ const debugState = document.getElementById('debug-state');
 // Debug waveform
 const debugWaveform = document.getElementById('debug-waveform');
 const debugWaveformCanvas = document.getElementById('debug-waveform-canvas');
+const debugWaveformPlayhead = document.getElementById('debug-waveform-playhead');
 const debugEnergyCount = document.getElementById('debug-energy-count');
 const debugAudioStart = document.getElementById('debug-audio-start');
 const debugAudioEnd = document.getElementById('debug-audio-end');
 const debugAudioDuration = document.getElementById('debug-audio-duration');
 const debugFadeDuration = document.getElementById('debug-fade-duration');
 const waveformCtx = debugWaveformCanvas.getContext('2d');
+
+// Waveform playhead state
+let waveformAudioInfo = null;
+let waveformPlayheadAnimId = null;
 
 // Overlay visibility
 let overlayTimeout = null;
@@ -282,7 +287,9 @@ const PAUSE_ICON = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V
 function handlePlayPause() {
   if (isPlaying) {
     stopRequested = true;
-    audioManager.pause(); // Suspend audio context - freezes all audio in place
+    audioManager.stop();  // Stop current audio and resolve pending Promise
+    audioManager.pause(); // Suspend audio context
+    stopWaveformPlayhead();
     playBtn.innerHTML = PLAY_ICON;
     showOverlay(); // Show overlay when paused
   } else {
@@ -529,6 +536,24 @@ function drawDebugWaveform(audioPath, startTime, duration) {
   const lowPoints = audioManager.getLowEnergyPoints(audioPath);
   const totalDuration = buffer.duration;
   const samples = buffer.getChannelData(0);
+  const sampleRate = buffer.sampleRate;
+  
+  // Calculate zoomed view range (play segment + 20% padding on each side)
+  const padding = duration * 0.2;
+  const viewStart = Math.max(0, startTime - padding);
+  const viewEnd = Math.min(totalDuration, startTime + duration + padding);
+  const viewDuration = viewEnd - viewStart;
+  
+  // Store info for playhead animation
+  stopWaveformPlayhead();
+  waveformAudioInfo = {
+    totalDuration,
+    startTime,
+    audioDuration: duration,
+    viewStart,
+    viewDuration,
+    startedAt: null
+  };
   
   // Update stats
   debugEnergyCount.textContent = lowPoints.length;
@@ -548,20 +573,22 @@ function drawDebugWaveform(audioPath, startTime, duration) {
   const height = rect.height;
   const midY = height / 2;
   
+  // Helper: convert time to X position in zoomed view
+  const timeToX = (t) => ((t - viewStart) / viewDuration) * width;
+  
   // Clear canvas
   waveformCtx.fillStyle = '#0a0a0a';
   waveformCtx.fillRect(0, 0, width, height);
   
   // Draw play region background
-  const regionStartX = (startTime / totalDuration) * width;
-  const regionEndX = ((startTime + duration) / totalDuration) * width;
+  const regionStartX = timeToX(startTime);
+  const regionEndX = timeToX(startTime + duration);
   waveformCtx.fillStyle = 'rgba(59, 130, 246, 0.15)';
   waveformCtx.fillRect(regionStartX, 0, regionEndX - regionStartX, height);
   
   // Draw fade regions
-  const fadeMs = config.audioFadeMs;
-  const fadeDuration = fadeMs / 1000; // Convert to seconds
-  const fadeWidthPx = (fadeDuration / totalDuration) * width;
+  const fadeDuration = config.audioFadeMs / 1000;
+  const fadeWidthPx = (fadeDuration / viewDuration) * width;
   
   waveformCtx.fillStyle = 'rgba(251, 191, 36, 0.4)';
   // Fade-in region
@@ -569,14 +596,18 @@ function drawDebugWaveform(audioPath, startTime, duration) {
   // Fade-out region
   waveformCtx.fillRect(regionEndX - fadeWidthPx, 0, fadeWidthPx, height);
   
-  // Draw waveform (downsampled)
-  const samplesPerPixel = Math.floor(samples.length / width);
-  waveformCtx.strokeStyle = '#444';
+  // Draw waveform (only the visible portion)
+  const viewStartSample = Math.floor(viewStart * sampleRate);
+  const viewEndSample = Math.floor(viewEnd * sampleRate);
+  const viewSamples = viewEndSample - viewStartSample;
+  const samplesPerPixel = Math.max(1, Math.floor(viewSamples / width));
+  
+  waveformCtx.strokeStyle = '#888';
   waveformCtx.lineWidth = 1;
   waveformCtx.beginPath();
   
   for (let x = 0; x < width; x++) {
-    const sampleIndex = Math.floor((x / width) * samples.length);
+    const sampleIndex = viewStartSample + Math.floor((x / width) * viewSamples);
     
     // Find min/max in this pixel's sample range
     let min = 0, max = 0;
@@ -594,11 +625,13 @@ function drawDebugWaveform(audioPath, startTime, duration) {
   }
   waveformCtx.stroke();
   
-  // Draw low-energy markers
+  // Draw low-energy markers (only those in visible range)
   waveformCtx.fillStyle = '#4ade80';
   for (const point of lowPoints) {
-    const x = (point / totalDuration) * width;
-    waveformCtx.fillRect(x - 0.5, 0, 1, height);
+    if (point >= viewStart && point <= viewEnd) {
+      const x = timeToX(point);
+      waveformCtx.fillRect(x - 0.5, 0, 1, height);
+    }
   }
   
   // Draw start marker
@@ -627,6 +660,9 @@ function clearDebugWaveform() {
   debugAudioDuration.textContent = '—';
   debugFadeDuration.textContent = '—';
   
+  stopWaveformPlayhead();
+  waveformAudioInfo = null;
+  
   const rect = debugWaveformCanvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   debugWaveformCanvas.width = rect.width * dpr;
@@ -635,6 +671,46 @@ function clearDebugWaveform() {
   waveformCtx.fillStyle = '#0a0a0a';
   waveformCtx.fillRect(0, 0, rect.width, rect.height);
   waveformCtx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+function startWaveformPlayhead() {
+  if (!waveformAudioInfo) return;
+  
+  waveformAudioInfo.startedAt = audioManager.context.currentTime;
+  debugWaveformPlayhead.classList.add('visible');
+  
+  function updatePlayhead() {
+    if (!waveformAudioInfo) {
+      stopWaveformPlayhead();
+      return;
+    }
+    
+    const elapsed = audioManager.context.currentTime - waveformAudioInfo.startedAt;
+    const currentPos = waveformAudioInfo.startTime + elapsed;
+    
+    // Position playhead relative to zoomed view
+    const { viewStart, viewDuration } = waveformAudioInfo;
+    const progress = (currentPos - viewStart) / viewDuration;
+    debugWaveformPlayhead.style.left = `${progress * 100}%`;
+    
+    // Stop if we've passed the end
+    if (elapsed >= waveformAudioInfo.audioDuration) {
+      stopWaveformPlayhead();
+      return;
+    }
+    
+    waveformPlayheadAnimId = requestAnimationFrame(updatePlayhead);
+  }
+  
+  updatePlayhead();
+}
+
+function stopWaveformPlayhead() {
+  if (waveformPlayheadAnimId) {
+    cancelAnimationFrame(waveformPlayheadAnimId);
+    waveformPlayheadAnimId = null;
+  }
+  debugWaveformPlayhead.classList.remove('visible');
 }
 
 function switchTab(tab) {
@@ -842,6 +918,7 @@ async function play() {
       // Draw debug waveform if debug panel is visible
       if (debugWaveform.classList.contains('visible')) {
         drawDebugWaveform(event.audioPath, event.audioStart, event.audioDuration);
+        startWaveformPlayhead();
       }
       try {
         await audioManager.play(event.audioPath, event.audioStart, event.audioDuration);
@@ -849,6 +926,7 @@ async function play() {
         console.error('Audio error:', e);
         await sleep(event.duration);
       }
+      stopWaveformPlayhead();
     } else if (event.duration > 0) {
       // Clear waveform for non-audio events
       if (debugWaveform.classList.contains('visible')) {

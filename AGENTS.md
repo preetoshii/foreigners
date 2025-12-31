@@ -40,10 +40,8 @@ node tools/generate-manifest.js
 
 ## Git Workflow
 
-**Don't auto-commit every turn.** Instead:
-- Commit at meaningful progress points (feature complete, bug fixed, refactor done)
-- **Ask before committing** — "This looks like a good checkpoint. Want me to commit?"
-- Group related changes into single commits
+**Don't auto-commit EVERY turn.** Instead:
+- Commit at meaningful progress points, or before a change that could be dangerous (feature complete, bug fixed, refactor done, before big change)
 - Use clear commit messages: `feat:`, `fix:`, `refactor:`, `docs:`
 
 ## Allowed Without Asking

@@ -17,6 +17,10 @@ export function createAudioManager() {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   const cache = new Map();       // path -> AudioBuffer
   const energyCache = new Map(); // path -> array of low-energy timestamps
+  
+  // Track current playback for stop/pause handling
+  let currentSource = null;
+  let currentResolve = null;
 
   /**
    * Load an audio file and cache it.
@@ -108,6 +112,9 @@ export function createAudioManager() {
       throw new Error(`Audio not loaded: ${path}`);
     }
 
+    // Stop any currently playing audio first
+    stop();
+
     // Resume context if suspended (browser autoplay policy)
     if (audioContext.state === 'suspended') {
       audioContext.resume();
@@ -143,9 +150,36 @@ export function createAudioManager() {
         gainNode.gain.linearRampToValueAtTime(0, now + safeDuration);
       }
 
-      source.onended = resolve;
+      // Track current playback
+      currentSource = source;
+      currentResolve = resolve;
+
+      source.onended = () => {
+        currentSource = null;
+        currentResolve = null;
+        resolve();
+      };
       source.start(0, safeStart, safeDuration);
     });
+  }
+
+  /**
+   * Stop current audio playback immediately.
+   * Resolves the pending play() Promise so the loop can continue.
+   */
+  function stop() {
+    if (currentSource) {
+      try {
+        currentSource.stop();
+      } catch (e) {
+        // Already stopped
+      }
+      currentSource = null;
+    }
+    if (currentResolve) {
+      currentResolve();
+      currentResolve = null;
+    }
   }
 
   /**
@@ -188,6 +222,7 @@ export function createAudioManager() {
     getLowEnergyPoints,
     getBuffer,
     play,
+    stop,
     pause,
     resume,
     preloadAll,

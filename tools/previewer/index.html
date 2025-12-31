@@ -625,9 +625,30 @@
       color: var(--text);
     }
 
-    .debug-waveform-canvas {
+    .debug-waveform-canvas-container {
+      position: relative;
       width: 100%;
       height: 120px;
+    }
+
+    .debug-waveform-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .debug-waveform-playhead {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2px;
+      height: 100%;
+      background: #fff;
+      pointer-events: none;
+      display: none;
+    }
+
+    .debug-waveform-playhead.visible {
       display: block;
     }
 
@@ -713,7 +734,10 @@
           <span>Fade: <span id="debug-fade-duration">—</span></span>
         </div>
       </div>
-      <canvas class="debug-waveform-canvas" id="debug-waveform-canvas"></canvas>
+      <div class="debug-waveform-canvas-container">
+        <canvas class="debug-waveform-canvas" id="debug-waveform-canvas"></canvas>
+        <div class="debug-waveform-playhead" id="debug-waveform-playhead"></div>
+      </div>
       <div class="debug-waveform-legend">
         <span class="legend-waveform">Waveform</span>
         <span class="legend-lowenergy">Low Energy</span>
